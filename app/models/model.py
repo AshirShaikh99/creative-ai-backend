@@ -20,6 +20,10 @@ class ChatSession(BaseModel):
 
 
 
+from pydantic import BaseModel
+from typing import Optional
+from uuid import UUID
+
 class ChatRequest(BaseModel):
     message: str
     session_id: Optional[UUID] = None

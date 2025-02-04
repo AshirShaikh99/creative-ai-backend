@@ -11,10 +11,13 @@ async def chat(
     user_id: str = Header(..., description="User ID for the chat session")
 ):
     try:
+        # Initialize session_id as None if not provided in request
+        session_id = request.session_id if hasattr(request, 'session_id') else None
+        
         session = await chatbot.process_message(
             user_id=user_id,
             message=request.message,
-            session_id=request.session_id
+            session_id=session_id
         )
         
         return ChatResponse(

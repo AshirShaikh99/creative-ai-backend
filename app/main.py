@@ -18,8 +18,8 @@ app.add_middleware(
 
 # Include routers
 app.include_router(
-    chat_router,  # Using the renamed import
-    prefix=settings.API_V1_STR + "/chat",
+    chat_router,
+    prefix=settings.API_V1_STR,  # Remove the additional "/chat"
     tags=["chat"]
 )
 

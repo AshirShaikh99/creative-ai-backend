@@ -19,6 +19,18 @@ class CreativeAIChatbot:
         qdrant_client = QdrantService.get_instance()
         self.semantic_search = QdrantSearch(qdrant_client=qdrant_client)
         
+        # Diagnostic print
+        print("\n=== Qdrant Status ===")
+        collections = qdrant_client.get_collections()
+        print(f"Available collections: {collections}")
+        
+        # Check if documents collection exists and has points
+        collection_info = qdrant_client.get_collection('documents')
+        print(f"\nCollection info: {collection_info}")
+        
+        # Get collection size
+        collection_size = qdrant_client.count('documents')
+        print(f"Number of documents in collection: {collection_size.count}")
     async def process_message(
         self,
         user_id: str,
@@ -36,16 +48,35 @@ class CreativeAIChatbot:
         user_message = Message(content=message, role="user")
         session.messages.append(user_message)
         
-        # Search relevant documents
-        search_results = await self.semantic_search.search(
-            query=message,
-            collection_name="documents",
-            limit=3,
-            score_threshold=0.7
-        )
-        
-        # Generate response with context
-        response = await self._generate_response(message, search_results, session)
+        try:
+            # Search relevant documents with adjusted parameters
+            search_results = await self.semantic_search.search(
+                query=message,
+                collection_name="documents",
+                limit=3,  # Reduced limit for more focused results
+                score_threshold=0.65  # Slightly higher threshold for better quality matches
+            )
+            
+            # Log search results for debugging
+            print("\n=== Search Results ===")
+            print(f"Query: {message}")
+            print(f"Number of results found: {len(search_results)}")
+            for result in search_results:
+                print(f"\nSource: {result.source}")
+                # Print full paragraph or section instead of fragments
+                content = result.content.strip()
+                if len(content) > 200:  # Only show longer, more meaningful content
+                    print(f"Content: {content}")
+                    print(f"Score: {result.score}")
+                    print("-------------------")
+            
+            # Generate response with context
+            response = await self._generate_response(message, search_results, session)
+            
+        except Exception as e:
+            print(f"Search error: {str(e)}")
+            # Fallback to generate response without context
+            response = await self._generate_response(message, [], session)
         
         # Add assistant message
         assistant_message = Message(content=response, role="assistant")
