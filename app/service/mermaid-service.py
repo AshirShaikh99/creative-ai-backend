@@ -1,5 +1,5 @@
 from typing import Dict
-from app.models.mermain_models import DiagramType, MermaidResponse
+from app.models.model import DiagramType, MermaidResponse
 
 class MermaidGenerator:
     def __init__(self):

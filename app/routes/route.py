@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Header, Depends
 from app.models.model import ChatRequest, ChatResponse, DiagramRequest, DiagramResponse
 from app.core.chatbot import chatbot
+from app.core.diagram_chat import diagram
 from uuid import UUID
 from typing import List
 from app.config.config import get_settings
@@ -33,7 +34,7 @@ async def generate_diagram(
     user_id: str = Header(..., description="User ID for the diagram generation")
 ):
     try:
-        return await chatbot.generate_diagram(
+        return await diagram.generate_diagram(
             message=request.message,
             options=request.options
         )
