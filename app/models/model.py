@@ -1,28 +1,21 @@
-from pydantic import BaseModel, Field
+# File: app/models/model.py
+from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
-from datetime import datetime
 from uuid import UUID, uuid4
-
+from datetime import datetime
 
 class Message(BaseModel):
-    id: UUID = Field(default_factory=uuid4)
     content: str
     role: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = datetime.now()
 
 class ChatSession(BaseModel):
-    id: UUID = Field(default_factory=uuid4)
+    id: UUID = uuid4()
     user_id: str
-    messages: List[Message] = Field(default_factory=list)
-    context: Dict[str, Any] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-
-
-
-from pydantic import BaseModel
-from typing import Optional
-from uuid import UUID
+    messages: List[Message] = []
+    metadata: Dict[str, Any] = {}
+    created_at: datetime = datetime.now()
+    updated_at: datetime = datetime.now()
 
 class ChatRequest(BaseModel):
     message: str
@@ -31,5 +24,13 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     message: str
     session_id: UUID
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-    role: str = "assistant"
+
+class DiagramRequest(BaseModel):
+    message: str
+    options: Optional[Dict[str, Any]] = None
+
+class DiagramResponse(BaseModel):
+    diagram_type: str
+    syntax: str
+    description: str
+    metadata: Optional[Dict[str, Any]] = None
