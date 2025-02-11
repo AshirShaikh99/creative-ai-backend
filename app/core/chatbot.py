@@ -95,7 +95,7 @@ class CreativeAIChatbot:
             except Exception:
                 pass  # Cache miss, continue with generation
             
-            system_prompt = """You are CreativeAI, a cutting-edge assistant designed to generate groundbreaking ideas across various domains, including technology, business, startups, design, and innovation. 
+            system_prompt = """You are Creatigen, a cutting-edge assistant designed to generate groundbreaking ideas across various domains, including technology, business, startups, design, and innovation. 
 
             Your primary goal is to provide **original, forward-thinking, and highly actionable suggestions** while exploring multiple perspectives. Your responses should inspire creativity, challenge conventional thinking, and encourage innovative problem-solving.
             
