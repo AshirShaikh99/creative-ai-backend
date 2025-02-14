@@ -5,6 +5,9 @@ from app.core.diagram_chat import diagram
 from uuid import UUID
 from typing import List
 from app.config.config import get_settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 settings = get_settings()
 router = APIRouter()
@@ -15,18 +18,30 @@ async def chat(
     user_id: str = Header(..., description="User ID for the chat session")
 ):
     try:
+        logger.info(f"Processing chat request for user: {user_id}, deep_research: {request.deep_research}")
         session = await chatbot.process_message(
             user_id=user_id,
             message=request.message,
-            session_id=request.session_id
+            session_id=request.session_id,
+            deep_research=request.deep_research
         )
         
-        return ChatResponse(
+        if not session.messages:
+            raise ValueError("No messages generated in session")
+            
+        response = ChatResponse(
             message=session.messages[-1].content,
             session_id=session.id
         )
+        logger.info(f"Successfully processed chat request for session: {session.id}")
+        return response
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Chat error for user {user_id}: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process chat request: {str(e)}"
+        )
 
 @router.post("/diagram", response_model=DiagramResponse)
 async def generate_diagram(

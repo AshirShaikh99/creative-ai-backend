@@ -20,10 +20,23 @@ class ChatSession(BaseModel):
 class ChatRequest(BaseModel):
     message: str
     session_id: Optional[UUID] = None
+    deep_research: bool = False  # Add this field
 
 class ChatResponse(BaseModel):
     message: str
     session_id: UUID
+
+class ResearchResult(BaseModel):
+    topic: str
+    findings: List[Dict[str, Any]]
+    sources: List[str]
+    confidence_score: float
+    metadata: Dict[str, Any]
+
+class ResearchTopic(BaseModel):
+    query: str
+    context: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 class DiagramRequest(BaseModel):
     message: str
