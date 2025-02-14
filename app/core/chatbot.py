@@ -39,51 +39,70 @@ class CreativeAIChatbot:
         session_id: Optional[UUID] = None,
         deep_research: bool = False
     ) -> ChatSession:
+        logger.info(f"Processing message for user: {user_id} (deep_research: {deep_research})")
+        logger.debug(f"Message length: {len(message)} characters")
+        
         # Get or create session
         if session_id and session_id in self.sessions:
             session = self.sessions[session_id]
+            logger.info(f"Using existing session: {session_id}")
         else:
             session = ChatSession(user_id=user_id)
             self.sessions[session.id] = session
+            logger.info(f"Created new session: {session.id}")
         
         # Add user message
         user_message = Message(content=message, role="user")
         session.messages.append(user_message)
+        logger.debug(f"Added user message to session. Total messages: {len(session.messages)}")
         
         try:
-            # First, get search results
+            logger.info("Starting semantic search...")
             search_results = await self.semantic_search.search(
                 query=message,
                 collection_name="documents",
                 limit=3,
                 score_threshold=0.7
             )
+            logger.info(f"Search completed. Found {len(search_results)} results")
             
-            # Conduct research with search context
+            logger.info("Starting research process...")
+            formatted_context = self._format_context(search_results)
+            logger.debug(f"Formatted context length: {len(formatted_context)} characters")
+            
             research_result = await research_engine.research_topic(
                 query=message,
-                context=self._format_context(search_results),
-                deep_research=deep_research  # Pass the deep_research parameter
+                context=formatted_context,
+                deep_research=deep_research
             )
+            logger.info(f"Research completed. Found {len(research_result.findings)} findings")
             
-            # Combine search results and research findings for final response
             combined_context = {
                 "search_results": search_results,
                 "research_findings": research_result.findings,
                 "research_sources": research_result.sources
             }
+            logger.debug(f"Combined context created with {len(combined_context['search_results'])} search results and {len(combined_context['research_findings'])} findings")
             
-            # Generate final response using Groq
+            logger.info("Generating final response...")
             response = await self._generate_response(message, combined_context, session)
+            logger.info(f"Response generated (length: {len(response)} characters)")
+            logger.info(f"Response type: {'Deep Research' if deep_research else 'Standard Chat'}")
+            logger.info("Response content:")
+            logger.info("=" * 50)
+            logger.info(response)
+            logger.info("=" * 50)
             
-            # Add assistant message
             assistant_message = Message(content=response, role="assistant")
             session.messages.append(assistant_message)
+            logger.debug(f"Added assistant response. Session now has {len(session.messages)} messages")
             
+            logger.info(f"Message processing completed successfully for user: {user_id}")
             return session
             
         except Exception as e:
-            logger.error(f"Error processing message: {str(e)}")
+            logger.error(f"Error processing message for user {user_id}: {str(e)}", exc_info=True)
+            logger.debug(f"Session state at error: {len(session.messages)} messages")
             raise
 
     @lru_cache(maxsize=1000)
@@ -119,10 +138,13 @@ class CreativeAIChatbot:
 
     async def _generate_response(self, message: str, combined_context: Dict, session: ChatSession) -> str:
         try:
-            # Format combined context
+            # If there are research findings and they're from deep research, use them directly
+            if combined_context["research_findings"] and combined_context["research_findings"][0].get("source") == "deep-research-analysis":
+                logger.info("Using deep research analysis as response")
+                return combined_context["research_findings"][0]["summary"]
+
+            # Otherwise, proceed with normal response generation
             context = self._format_combined_context(combined_context)
-            
-            # Generate cache keys
             message_hash = hashlib.sha256(message.encode()).hexdigest()
             context_hash = hashlib.sha256(context.encode()).hexdigest()
             
