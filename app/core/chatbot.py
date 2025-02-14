@@ -169,7 +169,8 @@ class CreativeAIChatbot:
                 stream=False
             )
             
-            response = completion.choices[0].message.content
+            response = f"{completion.choices[0].message.content}"
+
             
             # Cache the response
             self._cache_llm_response.cache_clear()
