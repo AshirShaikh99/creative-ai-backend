@@ -79,8 +79,8 @@ class CreativeAIChatbot:
             
             combined_context = {
                 "search_results": search_results,
-                "research_findings": research_result.findings,
-                "research_sources": research_result.sources
+                "research_findings": research_result.findings if research_result else [],
+                "research_sources": research_result.sources if research_result else []
             }
             logger.debug(f"Combined context created with {len(combined_context['search_results'])} search results and {len(combined_context['research_findings'])} findings")
             
@@ -138,10 +138,41 @@ class CreativeAIChatbot:
 
     async def _generate_response(self, message: str, combined_context: Dict, session: ChatSession) -> str:
         try:
-            # If there are research findings and they're from deep research, use them directly
-            if combined_context["research_findings"] and combined_context["research_findings"][0].get("source") == "deep-research-analysis":
-                logger.info("Using deep research analysis as response")
-                return combined_context["research_findings"][0]["summary"]
+            # Add debug logging for research findings
+            logger.debug(f"Research findings: {bool(combined_context.get('research_findings'))}")
+            
+            # Check if we have research findings and they're from the research engine
+            if (combined_context.get("research_findings") and 
+                isinstance(combined_context["research_findings"], list) and 
+                len(combined_context["research_findings"]) > 0):
+                
+                research_finding = combined_context["research_findings"][0]
+                logger.info(f"Using research findings for response generation: {research_finding.get('source')}")
+                
+                # Prioritize research content in the context
+                research_context = ""
+                if research_finding.get('summary'):
+                    research_context += f"Research Summary:\n{research_finding['summary']}\n\n"
+                if research_finding.get('details'):
+                    research_context += "Key Findings:\n" + "\n".join(f"- {detail}" for detail in research_finding['details'])
+                
+                # Combine with other context but prioritize research findings
+                context = research_context + "\n\n" + self._format_combined_context(combined_context)
+                
+                messages = [
+                    {"role": "system", "content": self._get_system_prompt()},
+                    {"role": "system", "content": f"Here is relevant research information:\n{context}"},
+                    {"role": "user", "content": message}
+                ]
+                
+                completion = await groq_client.chat.completions.create(
+                    model="mixtral-8x7b-32768",
+                    messages=messages,
+                    temperature=0.8,
+                    stream=False
+                )
+                
+                return completion.choices[0].message.content
 
             # Otherwise, proceed with normal response generation
             context = self._format_combined_context(combined_context)
@@ -191,11 +222,16 @@ class CreativeAIChatbot:
             content = result.content if hasattr(result, 'content') else ""
             context_parts.append(f"Search Result from {source}:\n{content}\n")
         
-        # Add research findings
+        # Add research findings with safe key access
         for finding in combined_context["research_findings"]:
-            context_parts.append(f"Research Finding on {finding['topic']}:\n{finding['summary']}\n")
-            if finding.get('details'):
-                context_parts.append("Details:\n" + "\n".join(finding['details']) + "\n")
+            # The topic is the same as the original query in research findings
+            summary = finding.get('summary', '')
+            details = finding.get('details', [])
+            
+            if summary:
+                context_parts.append(f"Research Finding:\n{summary}\n")
+            if details:
+                context_parts.append("Details:\n" + "\n".join(f"- {detail}" for detail in details) + "\n")
         
         # Add research sources
         if combined_context["research_sources"]:
