@@ -1,4 +1,3 @@
-# File: app/core/research_engine.py
 from typing import List, Dict, Any, Optional
 import logging
 from datetime import datetime
@@ -8,6 +7,7 @@ from functools import lru_cache
 from groq import AsyncGroq
 from app.config.config import get_settings
 from app.models.model import ResearchResult, ResearchTopic
+from gpt_researcher import GPTResearcher
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -15,81 +15,87 @@ settings = get_settings()
 class GPTResearchEngine:
     def __init__(self):
         self.groq_client = AsyncGroq(api_key=settings.GROQ_API_KEY)
+        # Define researcher config with Groq Mixtral model
+        self.researcher_config = {
+            "llm": {
+                "api_key": settings.GROQ_API_KEY,
+                "provider": "groq",
+                "model": "mixtral-8x7b-32768",
+                "temperature": 0.7
+            },
+            "report_format": "markdown",
+            "agent": {
+                "max_iterations": 3,
+                "search_type": "basic"
+            },
+            "search": {
+                "search_depth": 3,
+                "enable_web_search": True
+            }
+        }
         
     async def research_topic(self, query: str, context: Optional[str] = None, deep_research: bool = False) -> ResearchResult:
         try:
             logger.info(f"Starting research for query: '{query}' (deep_research: {deep_research})")
             logger.debug(f"Context length: {len(context) if context else 0} characters")
             
+            # Update config based on research depth
             if deep_research:
-                logger.info("Initiating deep research analysis")
-                # Perform deep research using Groq
-                research_prompt = f"""
-                🎨 **You are a Creatigen Researcher – The Art & Science of Groundbreaking Ideas** 🚀  
-
-                🔍 **Topic of Exploration:** {query}  
-                📌 **Context Provided:** {context if context else "No additional context available"}  
-
-                ### 🧠 **Your Role: A Creatigen Researcher**  
-                You are not just analyzing—you are **discovering, imagining, and redefining**. Your task is to explore this topic with the mind of a strategist, the curiosity of a scientist, and the vision of a creator.  
-
-                ### ✨ **The Deep Exploration Process:**  
-                1️⃣ **Deconstruct & Rebuild:** Break the topic down into fundamental truths, then reassemble it in a way that **unlocks new possibilities.**  
-                2️⃣ **Multi-Perspective Thinking:** Examine the subject from different angles—**historical, technological, emotional, and futuristic.**  
-                3️⃣ **Challenge the Ordinary:** What if we flipped conventional wisdom? Where do the **hidden opportunities** lie?  
-
-                ### ❤️ **Emotion & Impact – Making Ideas Matter**  
-                - Why does this subject evoke curiosity, urgency, or inspiration?  
-                - How does it **intersect with human creativity, innovation, or transformation**?  
-
-                ### 🎯 **The Expert Blueprint – Turning Insight into Vision**  
-                - **Strategic Breakthroughs:** What powerful, disruptive insights emerge from this?  
-                - **Future Forecast:** Where is this concept heading in 3, 5, or 10 years?  
-                - **Creative Leverage:** What are the most **actionable, high-impact ideas** that can reshape industries, businesses, or experiences?  
-
-                💡 **Your response should do more than inform—it should spark imagination, provoke thought, and inspire action!**  
-                """
-
-
-                logger.debug(f"Sending research prompt to Groq (length: {len(research_prompt)})")
-                completion = await self.groq_client.chat.completions.create(
-                    model="mixtral-8x7b-32768",
-                    messages=[{"role": "user", "content": research_prompt}],
-                    temperature=0.7
-                )
-                
-                analysis = completion.choices[0].message.content
-                logger.info(f"Received analysis from Groq (length: {len(analysis)})")
-                
-                finding = {
-                    "topic": query,
-                    "summary": analysis,
-                    "details": [context] if context else [],
-                    "source": "deep-research-analysis",
-                    "relevance": 1.0
-                }
-                logger.debug("Deep research finding created")
+                self.researcher_config["agent"]["max_iterations"] = 5
+                self.researcher_config["search"]["search_depth"] = 5
             else:
-                logger.info("Using simple context-based analysis")
-                # Use existing simple context-based analysis
+                self.researcher_config["agent"]["max_iterations"] = 3
+                self.researcher_config["search"]["search_depth"] = 3
+            
+            research_query = query
+            if context:
+                research_query = f"{query}\nContext: {context}"
+            
+            # Initialize researcher with our config
+            researcher = GPTResearcher(
+                query=research_query,
+                report_type="research_report" if deep_research else "quick_report",
+                config=self.researcher_config
+            )
+            
+            logger.info("Conducting research")
+            await researcher.conduct_research()
+            
+            logger.info("Generating research report")
+            research_report = await researcher.write_report()
+            
+            # Process research results
+            findings = []
+            if isinstance(research_report, dict):
                 finding = {
                     "topic": query,
-                    "summary": "Context-based research",
-                    "details": [context] if context else [],
-                    "source": "context-analysis",
+                    "summary": research_report.get("summary", ""),
+                    "details": research_report.get("key_findings", []),
+                    "source": "gpt-researcher",
                     "relevance": 1.0
                 }
-                logger.debug("Context-based finding created")
+                findings.append(finding)
+            else:
+                finding = {
+                    "topic": query,
+                    "summary": research_report if isinstance(research_report, str) else str(research_report),
+                    "details": [],
+                    "source": "gpt-researcher",
+                    "relevance": 1.0
+                }
+                findings.append(finding)
             
             research_result = ResearchResult(
                 topic=query,
-                findings=[finding],
-                sources=["deep-research" if deep_research else "context-based-analysis"],
+                findings=findings,
+                sources=researcher.research_summary if hasattr(researcher, 'research_summary') else [],
                 confidence_score=1.0,
                 metadata={
                     "context": context,
-                    "research_type": "deep_research" if deep_research else "context_based",
-                    "timestamp": datetime.now().isoformat()
+                    "research_type": "deep_research" if deep_research else "quick_research",
+                    "timestamp": datetime.now().isoformat(),
+                    "report_type": "research_report" if deep_research else "quick_report",
+                    "model": "mixtral-8x7b-32768"
                 }
             )
             
