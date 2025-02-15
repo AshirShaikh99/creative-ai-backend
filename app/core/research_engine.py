@@ -17,14 +17,14 @@ settings = get_settings()
 
 class GPTResearchEngine:
     def __init__(self):
-        # Set environment variables for GPTResearcher
         import os
         os.environ["GROQ_API_KEY"] = settings.GROQ_API_KEY
-        os.environ["FAST_LLM"] = "mixtral-8x7b-32768"  # Correct model name
-        os.environ["SMART_LLM"] = "mixtral-8x7b-32768"  # Using same model for both
+        os.environ["FAST_LLM"] = "groq"  # Specify provider only
+        os.environ["SMART_LLM"] = "groq"  # Specify provider only
+        os.environ["LLM_MODEL"] = "mixtral-8x7b-32768"  # Specify model separately
         
-        self.fast_llm = "mixtral-8x7b-32768"  # Correct model name
-        self.smart_llm = "mixtral-8x7b-32768"  # Using same model for both
+        self.fast_llm = "mixtral-8x7b-32768"
+        self.smart_llm = "mixtral-8x7b-32768"
 
     async def research_topic(self, query: str, context: Optional[str] = None, deep_research: bool = False) -> ResearchResult:
         try:

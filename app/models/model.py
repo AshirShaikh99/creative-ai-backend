@@ -28,10 +28,10 @@ class ChatResponse(BaseModel):
 
 class ResearchResult(BaseModel):
     topic: str
-    findings: List[Dict[str, Any]]
-    sources: List[str]
-    confidence_score: float
-    metadata: Dict[str, Any]
+    findings: List[Dict[str, Any]] = []  # Add default empty list
+    sources: List[str] = []  # Add default empty list
+    confidence_score: float = 0.0  # Add default value
+    metadata: Dict[str, Any] = {}  # Add default empty dict
 
 class ResearchTopic(BaseModel):
     query: str

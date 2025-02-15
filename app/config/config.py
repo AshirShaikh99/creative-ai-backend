@@ -9,9 +9,9 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = Field(..., env="GROQ_API_KEY")
     QDRANT_URL: str = Field(..., env="QDRANT_URL")
     QDRANT_API_KEY: str = Field(..., env="QDRANT_API_KEY")
-    FAST_LLM: str = Field("mixtral-8x7b-32768", env="FAST_LLM")
-    SMART_LLM: str = Field("mixtral-8x7b-32768", env="SMART_LLM")
-    STRATEGIC_LLM: str = Field("mixtral-8x7b-32768", env="STRATEGIC_LLM")
+    FAST_LLM: str = Field("groq:mixtral-8x7b-32768", env="FAST_LLM")
+    SMART_LLM: str = Field("groq:mixtral-8x7b-32768", env="SMART_LLM")
+    STRATEGIC_LLM: str = Field("groq:mixtral-8x7b-32768", env="STRATEGIC_LLM")
     EMBEDDING: str = Field(default="text-embedding-3-small", env="EMBEDDING")
 
     model_config = {
