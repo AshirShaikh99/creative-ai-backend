@@ -40,69 +40,51 @@ class CreativeAIChatbot:
         deep_research: bool = False
     ) -> ChatSession:
         logger.info(f"Processing message for user: {user_id} (deep_research: {deep_research})")
-        logger.debug(f"Message length: {len(message)} characters")
         
         # Get or create session
         if session_id and session_id in self.sessions:
             session = self.sessions[session_id]
-            logger.info(f"Using existing session: {session_id}")
         else:
             session = ChatSession(user_id=user_id)
             self.sessions[session.id] = session
-            logger.info(f"Created new session: {session.id}")
         
         # Add user message
-        user_message = Message(content=message, role="user")
-        session.messages.append(user_message)
-        logger.debug(f"Added user message to session. Total messages: {len(session.messages)}")
+        session.messages.append(Message(content=message, role="user"))
         
         try:
-            logger.info("Starting semantic search...")
+            # Always perform semantic search for context
             search_results = await self.semantic_search.search(
                 query=message,
                 collection_name="documents",
                 limit=3,
                 score_threshold=0.7
             )
-            logger.info(f"Search completed. Found {len(search_results)} results")
             
-            logger.info("Starting research process...")
-            formatted_context = self._format_context(search_results)
-            logger.debug(f"Formatted context length: {len(formatted_context)} characters")
+            combined_context = {"search_results": search_results, "research_findings": [], "research_sources": []}
             
-            research_result = await research_engine.research_topic(
-                query=message,
-                context=formatted_context,
-                deep_research=deep_research
-            )
-            logger.info(f"Research completed. Found {len(research_result.findings)} findings")
+            # Only perform research if deep_research is True
+            if deep_research:
+                logger.info("Starting deep research process...")
+                formatted_context = self._format_context(search_results)
+                research_result = await research_engine.research_topic(
+                    query=message,
+                    context=formatted_context,
+                    deep_research=True
+                )
+                
+                if research_result and research_result.findings:
+                    combined_context["research_findings"] = research_result.findings
+                    combined_context["research_sources"] = research_result.sources
+                    logger.info(f"Deep research completed with {len(research_result.findings)} findings")
             
-            combined_context = {
-                "search_results": search_results,
-                "research_findings": research_result.findings if research_result else [],
-                "research_sources": research_result.sources if research_result else []
-            }
-            logger.debug(f"Combined context created with {len(combined_context['search_results'])} search results and {len(combined_context['research_findings'])} findings")
-            
-            logger.info("Generating final response...")
+            # Generate response
             response = await self._generate_response(message, combined_context, session)
-            logger.info(f"Response generated (length: {len(response)} characters)")
-            logger.info(f"Response type: {'Deep Research' if deep_research else 'Standard Chat'}")
-            logger.info("Response content:")
-            logger.info("=" * 50)
-            logger.info(response)
-            logger.info("=" * 50)
+            session.messages.append(Message(content=response, role="assistant"))
             
-            assistant_message = Message(content=response, role="assistant")
-            session.messages.append(assistant_message)
-            logger.debug(f"Added assistant response. Session now has {len(session.messages)} messages")
-            
-            logger.info(f"Message processing completed successfully for user: {user_id}")
             return session
             
         except Exception as e:
-            logger.error(f"Error processing message for user {user_id}: {str(e)}", exc_info=True)
-            logger.debug(f"Session state at error: {len(session.messages)} messages")
+            logger.error(f"Error processing message: {str(e)}", exc_info=True)
             raise
 
     @lru_cache(maxsize=1000)

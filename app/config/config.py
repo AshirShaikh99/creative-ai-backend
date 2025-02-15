@@ -9,15 +9,10 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = Field(..., env="GROQ_API_KEY")
     QDRANT_URL: str = Field(..., env="QDRANT_URL")
     QDRANT_API_KEY: str = Field(..., env="QDRANT_API_KEY")
-    FAST_LLM: str = Field(..., env="FAST_LLM")
-    SMART_LLM: str = Field(..., env="SMART_LLM")
-    STRATEGIC_LLM: str = Field(..., env="STRATEGIC_LLM")  # Optional if using a strategic model
-    EMBEDDING: str = Field(..., env="EMBEDDING")  # Optional if using embeddings
-
-    # This ensures Pydantic does not treat `model_config` as a field
-    model_config: ClassVar[dict] = {
-        "extra": "allow"  # This allows extra fields from the .env file without errors
-    }
+    FAST_LLM: str = Field("mixtral-8x7b-32768", env="FAST_LLM")
+    SMART_LLM: str = Field("mixtral-8x7b-32768", env="SMART_LLM")
+    STRATEGIC_LLM: str = Field("mixtral-8x7b-32768", env="STRATEGIC_LLM")
+    EMBEDDING: str = Field(default="text-embedding-3-small", env="EMBEDDING")
 
     model_config = {
         "env_file": ".env",
