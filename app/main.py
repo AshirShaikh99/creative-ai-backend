@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.route import router as chat_router
+from app.routes.create_knowledgebase.route import router as knowledge_base_router
+
 from app.config.config import get_settings
 
 settings = get_settings()
@@ -19,6 +21,11 @@ app.include_router(
     chat_router,
     prefix=settings.API_V1_STR,
     tags=["chat"]
+)
+app.include_router(
+    knowledge_base_router, 
+    prefix="/api/knowledge-base", 
+    tags=["Knowledge Base"]
 )
 
 @app.get("/")

@@ -197,11 +197,74 @@ Return only valid Mermaid syntax without explanation."""
         # Return the type with highest score, default to FLOWCHART if no clear match
         return max(scores.items(), key=lambda x: x[1])[0] if any(scores.values()) else DiagramType.FLOWCHART
     
+    def _validate_mermaid_syntax(self, syntax: str) -> bool:
+        """Validate Mermaid diagram syntax"""
+        # Basic validation rules
+        if not syntax or not isinstance(syntax, str):
+            return False
+            
+        # Check for basic structure
+        syntax = syntax.strip()
+        valid_starts = [
+            'flowchart', 'sequenceDiagram', 'stateDiagram-v2',
+            'erDiagram', 'classDiagram', 'gantt'
+        ]
+        return any(syntax.startswith(start) for start in valid_starts)
+
+    def _sanitize_diagram(self, syntax: str) -> str:
+        """Sanitize and format diagram syntax"""
+        # Remove any markdown code block markers
+        syntax = syntax.replace('```mermaid', '').replace('```', '')
+        
+        # Remove extra whitespace and empty lines
+        lines = [line.strip() for line in syntax.split('\n') if line.strip()]
+        return '\n'.join(lines)
+
     def _format_diagram_prompt(self, query: str, diagram_type: DiagramType) -> str:
         """Format the complete prompt for diagram generation"""
         base_prompt = self.system_prompts.get(diagram_type, self.system_prompts[DiagramType.FLOWCHART])
         
-        return f"""Create a Mermaid diagram based on this description:
+        formatted_prompt = f"""Create a Mermaid diagram based on this description:
                   {query}
                   
                   {base_prompt}"""
+        
+        # Add validation reminder
+        formatted_prompt += "\n\nEnsure the diagram follows valid Mermaid syntax and includes proper node connections."
+        
+        return formatted_prompt
+
+    async def generate_diagram(self, query: str) -> MermaidResponse:
+        """Generate a Mermaid diagram with error handling"""
+        try:
+            diagram_type = self._detect_diagram_type(query)
+            prompt = self._format_diagram_prompt(query, diagram_type)
+            
+            # Get response from LLM (implement your LLM call here)
+            diagram_syntax = "Your LLM response here"
+            
+            # Sanitize and validate
+            diagram_syntax = self._sanitize_diagram(diagram_syntax)
+            if not self._validate_mermaid_syntax(diagram_syntax):
+                raise ValueError("Invalid Mermaid syntax generated")
+            
+            return MermaidResponse(
+                diagram_type=diagram_type.value,
+                syntax=diagram_syntax,
+                description=query
+            )
+            
+        except Exception as e:
+            # Return a simple fallback diagram on error
+            fallback_syntax = f"""flowchart TD
+    A[Start] --> B[Process]
+    B --> C[End]
+    style A fill:#f9f,stroke:#333
+    style B fill:#bbf,stroke:#333
+    style C fill:#bfb,stroke:#333"""
+            
+            return MermaidResponse(
+                diagram_type="flowchart",
+                syntax=fallback_syntax,
+                description=f"Error generating diagram: {str(e)}"
+            )
