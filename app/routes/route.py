@@ -18,12 +18,13 @@ async def chat(
     user_id: str = Header(..., description="User ID for the chat session")
 ):
     try:
-        logger.info(f"Processing chat request for user: {user_id}, deep_research: {request.deep_research}")
+        logger.info(f"Processing chat request for user: {user_id}, deep_research: {request.deep_research}, collection: {request.collection_name}")
         session = await chatbot.process_message(
             user_id=user_id,
             message=request.message,
             session_id=request.session_id,
-            deep_research=request.deep_research
+            deep_research=request.deep_research,
+            collection_name=request.collection_name  # Pass the collection name to process_message
         )
         
         if not session.messages:

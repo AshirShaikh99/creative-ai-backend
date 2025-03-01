@@ -1,4 +1,3 @@
-# search.py
 from typing import List, Dict, Any, Optional
 import logging
 from qdrant_client import QdrantClient
@@ -7,8 +6,7 @@ from qdrant_client.models import (
     FieldCondition,
     Range,
     SearchParams,
-    PayloadSelectorExclude,
-    QuantizationSearchParams
+    PayloadSelectorExclude
 )
 from dataclasses import dataclass
 import hashlib
@@ -49,19 +47,15 @@ class QdrantSearch:
         
         self._init_search_params()
         self._init_payload_selector()
-        logger.info("QdrantSearch initialized with binary quantization for ultra-fast search")
+        logger.info("QdrantSearch initialized with exact search for optimal results")
 
     def _init_search_params(self):
-        """Initialize search parameters with binary quantization for maximum performance"""
+        """Initialize search parameters for maximum accuracy"""
         self.default_search_params = SearchParams(
-            hnsw_ef=128,
-            exact=False,
-            quantization=QuantizationSearchParams(
-                ignore=False,
-                rescore=True,
-                oversampling=2.0
-            )
+            hnsw_ef=256,  # Increased from 128 for better recall
+            exact=True    # Using exact search for best results
         )
+        # Removed quantization parameters
 
     def _init_payload_selector(self):
         """Initialize payload selector to exclude unnecessary fields"""
@@ -115,57 +109,63 @@ class QdrantSearch:
             use_cache: bool = True
         ) -> List[SearchResult]:
             try:
-                if use_cache:
-                    cache_key = self._generate_cache_key(
-                        query,
-                        collection_name,
-                        limit=limit,
-                        score_threshold=score_threshold,
-                        filter_conditions=json.dumps(filter_conditions) if filter_conditions else None
-                    )
-                    
-                    # Try to get from cache using the serialized key
-                    try:
-                        return self._cache_search_results(cache_key, "")  # Empty string triggers cache lookup
-                    except Exception:
-                        pass  # Cache miss, continue with search
+                logger.info(f"Starting search in collection: {collection_name}")
+                logger.info(f"Query: {query}")
+                logger.info(f"Score threshold: {score_threshold}")
 
                 # Get embedding asynchronously
                 embedding = await self._get_embedding(query)
+                logger.info(f"Generated embedding of size: {len(embedding)}")
 
+                # Check if collection exists and get info
+                try:
+                    collection_info = self.qdrant_client.get_collection(collection_name)
+                    logger.info(f"Collection found: {collection_name}")
+                    logger.info(f"Collection vectors count: {collection_info.vectors_count}")
+                    logger.info(f"Collection config: {collection_info.config}")
+                except Exception as e:
+                    logger.error(f"Collection not found or error: {str(e)}")
+                    return []
+
+                # Build search parameters
                 search_params = {
                     "collection_name": collection_name,
                     "query_vector": embedding,
                     "limit": limit,
                     "score_threshold": score_threshold,
-                    "search_params": self.default_search_params,
-                    "with_payload": True
+                    "search_params": SearchParams(
+                        hnsw_ef=512,  # Increased for better recall
+                        exact=True    # Use exact search
+                    ),
+                    "with_payload": True,
+                    "with_vectors": False  # Don't return vectors to reduce response size
                 }
 
                 if filter_conditions:
                     search_params["filter"] = self._build_filter(filter_conditions)
 
+                logger.info("Executing search with parameters:")
+                logger.info(f"  Collection: {collection_name}")
+                logger.info(f"  Limit: {limit}")
+                logger.info(f"  Score threshold: {score_threshold}")
+                logger.info(f"Search parameters: {search_params}")
+
+                # Check if collection exists
+                try:
+                    collection_info = self.qdrant_client.get_collection(collection_name)
+                    logger.info(f"Collection info: {collection_info}")
+                except Exception as e:
+                    logger.error(f"Error getting collection info: {str(e)}")
+                    return []
+
                 results = await asyncio.to_thread(
                     self.qdrant_client.search,
                     **search_params
                 )
+                logger.info(f"Raw search results count: {len(results)}")
 
                 processed_results = self._process_results(results)
-
-                if use_cache:
-                    # Cache results
-                    serializable_results = [
-                        {
-                            "content": result.content,
-                            "metadata": result.metadata,
-                            "score": result.score,
-                            "source": result.source
-                        }
-                        for result in processed_results
-                    ]
-                    # Store in cache
-                    self._cache_search_results.cache_clear()  # Clear old cache entry
-                    self._cache_search_results(cache_key, json.dumps(serializable_results))
+                logger.info(f"Processed results count: {len(processed_results)}")
 
                 return processed_results
 

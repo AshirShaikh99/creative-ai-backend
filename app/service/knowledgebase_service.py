@@ -4,8 +4,6 @@ import tempfile
 import logging
 from typing import Dict, Any, List, Optional, Tuple
 from fastapi import UploadFile, HTTPException
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
 from app.service.qdrant_service import QdrantService
 from app.utils.chunking import DocumentChunker
 from sentence_transformers import SentenceTransformer
@@ -13,10 +11,8 @@ import torch
 from qdrant_client.models import VectorParams, Distance, CollectionStatus
 from tenacity import retry, stop_after_attempt, wait_exponential
 from app.models.knowledgebase_model import KnowledgeBaseResponse, KnowledgeBaseListResponse
-from app.db.models import KnowledgeBase as KnowledgeBaseModel
 import shutil
 import time
-from sqlalchemy import and_
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +37,12 @@ class KnowledgeBaseService:
         self.model = self.model.to(self.device)
         self.qdrant_client = QdrantService.get_instance()
         self.batch_size = 32
+        
+        # In-memory storage to replace database
+        self.knowledge_bases = {}
     
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    async def create_knowledge_base(self, db: Session, user_uuid: str, title: str, description: str, document: UploadFile) -> KnowledgeBaseResponse:
+    async def create_knowledge_base(self, user_uuid: str, title: str, description: str, document: UploadFile) -> KnowledgeBaseResponse:
         """Create a new knowledge base for a user with the uploaded document"""
         start_time = time.time()
         collection_name = f"kb_{user_uuid}_{self._sanitize_collection_name(title)}"
@@ -55,23 +54,24 @@ class KnowledgeBaseService:
                 logger.warning(f"Collection {collection_name} already exists in Qdrant")
                 raise HTTPException(status_code=409, detail=f"Knowledge base with title '{title}' already exists for this user")
             
-            # Create database entry first
-            kb_model = KnowledgeBaseModel(
-                uuid=user_uuid,
-                title=title,
-                description=description,
-                status="processing",
-                collection_name=collection_name
-            )
-            
-            try:
-                db.add(kb_model)
-                db.commit()
-                db.refresh(kb_model)
-            except IntegrityError:
-                db.rollback()
-                logger.error(f"Database integrity error: Knowledge base with title '{title}' already exists for user {user_uuid}")
+            # Check if knowledge base exists in memory
+            user_kbs = self.knowledge_bases.get(user_uuid, {})
+            if title in user_kbs:
+                logger.error(f"Knowledge base with title '{title}' already exists for user {user_uuid}")
                 raise HTTPException(status_code=409, detail=f"Knowledge base with title '{title}' already exists for this user")
+            
+            # Create new knowledge base entry
+            kb_entry = {
+                "id": len(user_kbs) + 1,
+                "uuid": user_uuid,
+                "title": title,
+                "description": description,
+                "status": "processing",
+                "collection_name": collection_name,
+                "document_count": 0,
+                "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "updated_at": time.strftime("%Y-%m-%d %H:%M:%S")
+            }
             
             # Create new collection with optimized config
             self.qdrant_client.create_collection(
@@ -108,14 +108,17 @@ class KnowledgeBaseService:
                 # Process and embed the document
                 document_count = await self._process_document(temp_file_path, collection_name)
                 
-                # Update the database entry
-                kb_model.status = "completed"
-                kb_model.document_count = document_count
-                db.commit()
-                db.refresh(kb_model)
+                # Update the knowledge base entry
+                kb_entry["status"] = "completed"
+                kb_entry["document_count"] = document_count
+                
+                # Store in memory
+                if user_uuid not in self.knowledge_bases:
+                    self.knowledge_bases[user_uuid] = {}
+                self.knowledge_bases[user_uuid][title] = kb_entry
                 
                 # Create the response
-                response = self._model_to_response(kb_model)
+                response = self._entry_to_response(kb_entry)
                 
                 total_time = time.time() - start_time
                 logger.info(f"Completed knowledge base creation in {total_time:.2f} seconds")
@@ -129,11 +132,6 @@ class KnowledgeBaseService:
         except Exception as e:
             # Clean up if collection was created but processing failed
             try:
-                # Update database entry to failed status if it was created
-                if 'kb_model' in locals():
-                    kb_model.status = "failed"
-                    db.commit()
-                
                 # Delete Qdrant collection if it was created
                 collections = self.qdrant_client.get_collections()
                 if collection_name in [c.name for c in collections.collections]:
@@ -147,24 +145,26 @@ class KnowledgeBaseService:
                 raise e
             raise HTTPException(status_code=500, detail=f"Failed to create knowledge base: {str(e)}")
     
-    async def get_knowledge_bases(self, db: Session, user_uuid: str, page: int = 1, page_size: int = 10) -> KnowledgeBaseListResponse:
+    async def get_knowledge_bases(self, user_uuid: str, page: int = 1, page_size: int = 10) -> KnowledgeBaseListResponse:
         """Get all knowledge bases for a user with pagination"""
         try:
-            # Calculate offset
-            offset = (page - 1) * page_size
+            # Get knowledge bases for user
+            user_kbs = self.knowledge_bases.get(user_uuid, {})
+            kb_list = list(user_kbs.values())
+            
+            # Sort by created_at (newest first)
+            kb_list.sort(key=lambda x: x["created_at"], reverse=True)
             
             # Get total count
-            total_count = db.query(KnowledgeBaseModel).filter(KnowledgeBaseModel.uuid == user_uuid).count()
+            total_count = len(kb_list)
             
-            # Get paginated results
-            knowledge_bases = db.query(KnowledgeBaseModel).filter(
-                KnowledgeBaseModel.uuid == user_uuid
-            ).order_by(
-                KnowledgeBaseModel.created_at.desc()
-            ).offset(offset).limit(page_size).all()
+            # Apply pagination
+            start_idx = (page - 1) * page_size
+            end_idx = start_idx + page_size
+            paginated_kbs = kb_list[start_idx:end_idx]
             
             # Convert to response models
-            response_models = [self._model_to_response(kb) for kb in knowledge_bases]
+            response_models = [self._entry_to_response(kb) for kb in paginated_kbs]
             
             return KnowledgeBaseListResponse(
                 uuid=user_uuid,
@@ -180,7 +180,6 @@ class KnowledgeBaseService:
     
     async def update_knowledge_base(
         self, 
-        db: Session, 
         user_uuid: str, 
         title: str, 
         description: Optional[str] = None,
@@ -188,25 +187,23 @@ class KnowledgeBaseService:
     ) -> KnowledgeBaseResponse:
         """Update a knowledge base for a user"""
         try:
-            # Find the knowledge base in the database
-            kb_model = db.query(KnowledgeBaseModel).filter(
-                and_(KnowledgeBaseModel.uuid == user_uuid, KnowledgeBaseModel.title == title)
-            ).first()
-            
-            if not kb_model:
+            # Find the knowledge base in memory
+            user_kbs = self.knowledge_bases.get(user_uuid, {})
+            if title not in user_kbs:
                 raise HTTPException(status_code=404, detail=f"Knowledge base with title '{title}' not found for this user")
+                
+            kb_entry = user_kbs[title]
             
             # Update description if provided
             if description is not None:
-                kb_model.description = description
+                kb_entry["description"] = description
                 
             # If document is provided, update the vector embeddings
             if document:
                 # Temporarily set status to updating
-                kb_model.status = "updating"
-                db.commit()
+                kb_entry["status"] = "updating"
                 
-                collection_name = kb_model.collection_name
+                collection_name = kb_entry["collection_name"]
                 
                 # Check if collection exists
                 collections = self.qdrant_client.get_collections()
@@ -244,67 +241,52 @@ class KnowledgeBaseService:
                     # Process and embed the document
                     document_count = await self._process_document(temp_file_path, collection_name)
                     
-                    # Update the database entry
-                    kb_model.document_count = document_count
+                    # Update the knowledge base entry
+                    kb_entry["document_count"] = document_count
                     
                 finally:
                     # Clean up temp directory
                     shutil.rmtree(temp_dir)
             
-            # Update status and commit changes
-            kb_model.status = "completed"
-            db.commit()
-            db.refresh(kb_model)
+            # Update status and timestamp
+            kb_entry["status"] = "completed"
+            kb_entry["updated_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
             
             # Return the updated knowledge base
-            return self._model_to_response(kb_model)
+            return self._entry_to_response(kb_entry)
             
         except Exception as e:
-            # Rollback transaction
-            db.rollback()
-            
             logger.error(f"Error updating knowledge base for user {user_uuid}, title {title}: {str(e)}")
             if isinstance(e, HTTPException):
                 raise e
             raise HTTPException(status_code=500, detail=f"Failed to update knowledge base: {str(e)}")
     
-    async def delete_knowledge_base(self, db: Session, user_uuid: str, title: str) -> Dict[str, Any]:
+    async def delete_knowledge_base(self, user_uuid: str, title: str) -> Dict[str, Any]:
         """Delete a knowledge base for a user"""
         try:
-            # Find the knowledge base in the database
-            kb_model = db.query(KnowledgeBaseModel).filter(
-                and_(KnowledgeBaseModel.uuid == user_uuid, KnowledgeBaseModel.title == title)
-            ).first()
-            
-            if not kb_model:
+            # Find the knowledge base in memory
+            user_kbs = self.knowledge_bases.get(user_uuid, {})
+            if title not in user_kbs:
                 raise HTTPException(status_code=404, detail=f"Knowledge base with title '{title}' not found for this user")
             
-            collection_name = kb_model.collection_name
+            kb_entry = user_kbs[title]
+            collection_name = kb_entry["collection_name"]
             
-            # Transaction: Delete both database entry and Qdrant collection
-            try:
-                # Delete from database
-                db.delete(kb_model)
-                db.commit()
-                
-                # Delete from Qdrant
-                collections = self.qdrant_client.get_collections()
-                if collection_name in [c.name for c in collections.collections]:
-                    self.qdrant_client.delete_collection(collection_name)
-                    logger.info(f"Deleted collection {collection_name}")
-                
-                return {
-                    "status": "success", 
-                    "message": f"Knowledge base '{title}' successfully deleted",
-                    "uuid": user_uuid,
-                    "title": title
-                }
-                
-            except Exception as e:
-                # Rollback transaction if error occurs
-                db.rollback()
-                logger.error(f"Transaction failed during deletion: {str(e)}")
-                raise
+            # Delete from memory
+            del user_kbs[title]
+            
+            # Delete from Qdrant
+            collections = self.qdrant_client.get_collections()
+            if collection_name in [c.name for c in collections.collections]:
+                self.qdrant_client.delete_collection(collection_name)
+                logger.info(f"Deleted collection {collection_name}")
+            
+            return {
+                "status": "success", 
+                "message": f"Knowledge base '{title}' successfully deleted",
+                "uuid": user_uuid,
+                "title": title
+            }
                 
         except Exception as e:
             logger.error(f"Error deleting knowledge base for user {user_uuid}, title {title}: {str(e)}")
@@ -321,18 +303,18 @@ class KnowledgeBaseService:
             sanitized = sanitized[:50]
         return sanitized
     
-    def _model_to_response(self, model: KnowledgeBaseModel) -> KnowledgeBaseResponse:
-        """Convert a database model to a response model"""
+    def _entry_to_response(self, entry: Dict[str, Any]) -> KnowledgeBaseResponse:
+        """Convert a memory entry to a response model"""
         return KnowledgeBaseResponse(
-            id=model.id,
-            uuid=model.uuid,
-            title=model.title,
-            description=model.description,
-            status=model.status,
-            collection_name=model.collection_name,
-            document_count=model.document_count,
-            created_at=model.created_at,
-            updated_at=model.updated_at
+            id=entry["id"],
+            uuid=entry["uuid"],
+            title=entry["title"],
+            description=entry["description"],
+            status=entry["status"],
+            collection_name=entry["collection_name"],
+            document_count=entry["document_count"],
+            created_at=entry["created_at"],
+            updated_at=entry["updated_at"]
         )
     
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))

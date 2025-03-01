@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.route import router as chat_router
-from app.routes.create_knowledgebase.route import router as knowledge_base_router
+from app.routes.knowledgebase_route.route import router as knowledge_base_router
 
 from app.config.config import get_settings
 

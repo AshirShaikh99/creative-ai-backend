@@ -81,18 +81,14 @@ class DocumentProcessor:
                 logger.info(f"Found existing collection '{self.collection_name}' with {points_count} points")
                 return
             
-            # Create new collection with dictionary config
+            # Create new collection without binary quantization
             self.qdrant_client.create_collection(
                 collection_name=self.collection_name,
                 vectors_config=models.VectorParams(
                     size=384,
                     distance=models.Distance.COSINE
                 ),
-                quantization_config=models.BinaryQuantization(
-                    binary=models.BinaryQuantizationConfig(
-                        always_ram=True,
-                    ),
-                ),
+                # Removed quantization_config for high-quality vector storage
                 optimizers_config={
                     "memmap_threshold": 10000,
                     "indexing_threshold": 20000,
@@ -101,9 +97,15 @@ class DocumentProcessor:
                     "vacuum_min_vector_number": 1000,
                     "default_segment_number": 2,
                     "flush_interval_sec": 5
-                }
+                },
+                hnsw_config=models.HnswConfigDiff(
+                    m=16,                 # Number of edges per node in the graph
+                    ef_construct=200,     # Size of the dynamic candidate list during construction
+                    full_scan_threshold=10000,  # Threshold for switching to full scan search
+                    max_indexing_threads=4      # Number of threads used for indexing
+                )
             )
-            logger.info(f"Created new collection with binary quantization: {self.collection_name}") 
+            logger.info(f"Created new collection with exact vector storage: {self.collection_name}") 
 
         except Exception as e:
             logger.error(f"Error initializing collection: {str(e)}")
@@ -196,22 +198,30 @@ class DocumentProcessor:
                 points = []
                 
                 for embedding in batch:
-                    points.append({
-                        "id": str(uuid.uuid4()),
-                        "vector": embedding['embedding'],
-                        "payload": {
-                            "source": os.path.basename(source_file),
-                            "content": embedding['content'][:5000],
-                            "metadata": embedding['metadata']
+                    point = models.PointStruct(
+                        id=str(uuid.uuid4()),
+                        vector=embedding['embedding'],
+                        payload={
+                            "content": embedding['content'][:5000],  # Limit content length
+                            "source": source_file,  # Keep full path
+                            "metadata": {
+                                "page": embedding['metadata'].get('page'),
+                                "type": embedding['metadata'].get('type'),
+                                "filename": os.path.basename(source_file)
+                            }
                         }
-                    })
+                    )
+                    points.append(point)
                 
                 self.qdrant_client.upsert(
                     collection_name=self.collection_name,
-                    points=points
+                    points=models.Batch(
+                        ids=[p.id for p in points],
+                        vectors=[p.vector for p in points],
+                        payloads=[p.payload for p in points]
+                    )
                 )
-                logger.info(f"Stored batch {i//max_batch_size + 1} of embeddings")
-                time.sleep(0.5)
+                logger.info(f"Stored batch {i//max_batch_size + 1} with {len(points)} points")
                 
         except Exception as e:
             logger.error(f"Error storing embeddings: {str(e)}")

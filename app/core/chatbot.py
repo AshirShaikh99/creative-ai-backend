@@ -37,9 +37,16 @@ class CreativeAIChatbot:
         user_id: str,
         message: str,
         session_id: Optional[UUID] = None,
-        deep_research: bool = False
+        deep_research: bool = False,
+        collection_name: Optional[str] = None
     ) -> ChatSession:
-        logger.info(f"Processing message for user: {user_id} (deep_research: {deep_research})")
+        logger.info(f"Processing message for user: {user_id} (deep_research: {deep_research}, collection: {collection_name})")
+        
+        # Add detailed logging for collection name
+        if collection_name:
+            logger.info(f"Using specified collection for search: {collection_name}")
+        else:
+            logger.warning("No collection name provided, falling back to default 'documents' collection")
         
         # Get or create session
         if session_id and session_id in self.sessions:
@@ -52,13 +59,52 @@ class CreativeAIChatbot:
         session.messages.append(Message(content=message, role="user"))
         
         try:
-            # Always perform semantic search for context
-            search_results = await self.semantic_search.search(
-                query=message,
-                collection_name="documents",
-                limit=3,
-                score_threshold=0.7
-            )
+            # Perform semantic search on the specified collection if provided
+            search_results = []
+            if collection_name:
+                search_results = await self.semantic_search.search(
+                    query=message,
+                    collection_name=collection_name,  # Use the specified collection
+                    limit=3,
+                    score_threshold=0.7
+                )
+                # Log search results with more detail
+                logger.info(f"Search results from collection {collection_name}:")
+                if not search_results:
+                    logger.warning("No search results found")
+                else:
+                    logger.info(f"Found {len(search_results)} results")
+                    for idx, result in enumerate(search_results, 1):
+                        logger.info("-" * 50)  # Separator for better visibility
+                        logger.info(f"Result {idx}:")
+                        try:
+                            logger.info(f"  Content type: {type(result.content)}")
+                            logger.info(f"  Content length: {len(result.content) if result.content else 0}")
+                            logger.info(f"  Content: {result.content[:500] if result.content else 'No content'}")
+                            logger.info(f"  Score: {result.score}")
+                            logger.info(f"  Source: {result.source}")
+                            logger.info(f"  Metadata: {result.metadata}")
+                        except Exception as e:
+                            logger.error(f"Error logging result {idx}: {str(e)}")
+                for idx, result in enumerate(search_results, 1):
+                    logger.info(f"Result {idx}:")
+                    logger.info(f"  Content: {result.content[:200]}...")  # First 200 chars
+                    logger.info(f"  Score: {result.score}")
+                    logger.info(f"  Source: {result.source}")
+            else:
+                # Fallback to default "documents" collection
+                search_results = await self.semantic_search.search(
+                    query=message,
+                    collection_name="documents",
+                    limit=3,
+                    score_threshold=0.7
+                )
+                logger.info("Search results from default 'documents' collection:")
+                for idx, result in enumerate(search_results, 1):
+                    logger.info(f"Result {idx}:")
+                    logger.info(f"  Content: {result.content[:200]}...")
+                    logger.info(f"  Score: {result.score}")
+                    logger.info(f"  Source: {result.source}")
             
             combined_context = {"search_results": search_results, "research_findings": [], "research_sources": []}
             
