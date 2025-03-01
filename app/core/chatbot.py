@@ -95,7 +95,7 @@ class CreativeAIChatbot:
                 # Fallback to default "documents" collection
                 search_results = await self.semantic_search.search(
                     query=message,
-                    collection_name="documents",
+                    collection_name=collection_name,
                     limit=3,
                     score_threshold=0.7
                 )

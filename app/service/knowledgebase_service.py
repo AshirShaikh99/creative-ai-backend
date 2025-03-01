@@ -45,7 +45,7 @@ class KnowledgeBaseService:
     async def create_knowledge_base(self, user_uuid: str, title: str, description: str, document: UploadFile) -> KnowledgeBaseResponse:
         """Create a new knowledge base for a user with the uploaded document"""
         start_time = time.time()
-        collection_name = f"kb_{user_uuid}_{self._sanitize_collection_name(title)}"
+        collection_name = f"{self._sanitize_collection_name(title)}"
         
         try:
             # Check if collection exists in Qdrant
