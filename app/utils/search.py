@@ -117,37 +117,26 @@ class QdrantSearch:
                 embedding = await self._get_embedding(query)
                 logger.info(f"Generated embedding of size: {len(embedding)}")
 
-                # Check if collection exists and get info
-                try:
-                    collection_info = self.qdrant_client.get_collection(collection_name)
-                    logger.info(f"Collection found: {collection_name}")
-                    logger.info(f"Collection vectors count: {collection_info.vectors_count}")
-                    logger.info(f"Collection config: {collection_info.config}")
-                except Exception as e:
-                    logger.error(f"Collection not found or error: {str(e)}")
-                    return []
+                # Build filter if provided
+                search_filter = None
+                if filter_conditions:
+                    search_filter = self._build_filter(filter_conditions)
+                    logger.info(f"Applied filter: {search_filter}")
 
-                # Build search parameters
                 search_params = {
                     "collection_name": collection_name,
                     "query_vector": embedding,
                     "limit": limit,
                     "score_threshold": score_threshold,
-                    "search_params": SearchParams(
-                        hnsw_ef=512,  # Increased for better recall
-                        exact=True    # Use exact search
-                    ),
+                    "search_params": self.default_search_params,
                     "with_payload": True,
-                    "with_vectors": False  # Don't return vectors to reduce response size
+                    "payload_selector": self.payload_selector
                 }
-
-                if filter_conditions:
-                    search_params["filter"] = self._build_filter(filter_conditions)
-
-                logger.info("Executing search with parameters:")
-                logger.info(f"  Collection: {collection_name}")
-                logger.info(f"  Limit: {limit}")
-                logger.info(f"  Score threshold: {score_threshold}")
+                
+                # Add filter if it exists
+                if search_filter:
+                    search_params["filter"] = search_filter
+                
                 logger.info(f"Search parameters: {search_params}")
 
                 # Check if collection exists

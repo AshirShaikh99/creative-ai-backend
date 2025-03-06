@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.route import router as chat_router
 from app.routes.knowledgebase_route.route import router as knowledge_base_router
+from app.routes.audio_route import router as audio_router
 
 from app.config.config import get_settings
 
@@ -26,6 +27,11 @@ app.include_router(
     knowledge_base_router, 
     prefix="/api/knowledge-base", 
     tags=["Knowledge Base"]
+)
+app.include_router(
+    audio_router,
+    prefix="/api/audio",
+    tags=["Voice Agent"]
 )
 
 @app.get("/")
