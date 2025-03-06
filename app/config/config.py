@@ -19,9 +19,11 @@ class Settings(BaseSettings):
     LIVEKIT_API_SECRET: str = Field(..., env="LIVEKIT_API_SECRET")
     LIVEKIT_WS_URL: str = Field(..., env="LIVEKIT_WS_URL")
     
-    # Whisper and TTS Configuration
-    WHISPER_MODEL: str = Field(default="base", env="WHISPER_MODEL")
-    TTS_MODEL_PATH: str = Field(default="Kokoro-82M", env="TTS_MODEL_PATH")
+    # Deepgram and ElevenLabs Configuration
+    DEEPGRAM_API_KEY: str = Field(..., env="DEEPGRAM_API_KEY")
+    DEEPGRAM_MODEL: str = Field(default="nova-2", env="DEEPGRAM_MODEL")
+    ELEVENLABS_API_KEY: str = Field(..., env="ELEVENLABS_API_KEY")
+    ELEVENLABS_VOICE_ID: str = Field(default="Antoni", env="ELEVENLABS_VOICE_ID")
     
     # Audio processing settings
     AUDIO_SAMPLE_RATE: int = Field(default=16000, env="AUDIO_SAMPLE_RATE")

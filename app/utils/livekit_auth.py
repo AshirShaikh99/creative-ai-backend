@@ -30,6 +30,12 @@ def create_livekit_token(
     """
     current_time = int(time.time())
     
+    # For LiveKit, metadata must be a simple string, not a nested object
+    metadata_str = None
+    if metadata:
+        import json
+        metadata_str = json.dumps(metadata)
+    
     payload = {
         "iss": settings.LIVEKIT_API_KEY,  # Issuer
         "sub": user_id,  # Subject (participant identity)
@@ -44,8 +50,9 @@ def create_livekit_token(
         }
     }
     
-    if metadata:
-        payload["metadata"] = metadata
+    # Add metadata as a string if provided
+    if metadata_str:
+        payload["metadata"] = metadata_str
     
     token = jwt.encode(
         payload,

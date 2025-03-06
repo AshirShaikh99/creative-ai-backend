@@ -1,43 +1,42 @@
 import os
 import tempfile
 import numpy as np
-from faster_whisper import WhisperModel
-from pydub import AudioSegment
 from typing import Dict, Any, Tuple
 import asyncio
 import soundfile as sf
 from app.config.config import get_settings
 import logging
+from deepgram import Deepgram, DeepgramClientOptions
+from io import BytesIO
+from pydub import AudioSegment
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
 
-# Global variable to store the loaded model
-_whisper_model = None
+# Global variable to store the Deepgram client
+_deepgram_client = None
 
 
-def get_whisper_model():
+def get_deepgram_client():
     """
-    Load and cache the Faster Whisper model.
+    Initialize and cache the Deepgram client.
     """
-    global _whisper_model
-    if _whisper_model is None:
-        logger.info(f"Loading Faster Whisper model: {settings.WHISPER_MODEL}")
-        # Use CUDA if available, otherwise CPU
-        device = "cuda" if os.environ.get("USE_CUDA", "0") == "1" else "cpu"
-        compute_type = "float16" if device == "cuda" else "float32"
+    global _deepgram_client
+    if _deepgram_client is None:
+        logger.info("Initializing Deepgram client")
+        api_key = settings.DEEPGRAM_API_KEY
+        if not api_key:
+            raise ValueError("DEEPGRAM_API_KEY not found in environment variables or settings")
         
-        _whisper_model = WhisperModel(
-            model_size_or_path=settings.WHISPER_MODEL,
-            device=device,
-            compute_type=compute_type
-        )
-    return _whisper_model
+        options = DeepgramClientOptions(api_key=api_key)
+        _deepgram_client = Deepgram(options)
+    
+    return _deepgram_client
 
 
 async def transcribe_audio_chunk(audio_data: bytes) -> Tuple[str, float]:
     """
-    Transcribe an audio chunk using Faster Whisper.
+    Transcribe an audio chunk using Deepgram.
     
     Args:
         audio_data: Raw audio bytes
@@ -45,51 +44,56 @@ async def transcribe_audio_chunk(audio_data: bytes) -> Tuple[str, float]:
     Returns:
         Tuple containing transcribed text and confidence score
     """
-    model = get_whisper_model()
+    client = get_deepgram_client()
     
     # Create a temporary file to save the audio data
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_file:
         temp_filename = temp_file.name
         
         try:
-            # Save raw audio bytes to file
-            with open(temp_filename, "wb") as f:
-                f.write(audio_data)
+            # Convert bytes to audio segment
+            audio = AudioSegment.from_file(BytesIO(audio_data))
             
-            # Load the audio file using pydub
-            audio = AudioSegment.from_file(temp_filename)
-            audio = audio.set_frame_rate(16000).set_channels(1)
+            # Export to WAV format
             audio.export(temp_filename, format="wav")
             
-            # Run transcription using Faster Whisper
-            segments, info = await asyncio.to_thread(
-                model.transcribe,
-                temp_filename,
-                language="en",
-                vad_filter=True,  # Voice activity detection for better results
-                vad_parameters=dict(min_silence_duration_ms=500)  # Adjust for your needs
+            # Read the audio file
+            with open(temp_filename, "rb") as audio_file:
+                audio_bytes = audio_file.read()
+            
+            # Configure transcription options for Deepgram SDK 3.2.0
+            options = {
+                "smart_format": True,
+                "model": settings.DEEPGRAM_MODEL,
+                "language": "en",
+                "diarize": False,
+                "punctuate": True,
+                "utterances": True
+            }
+            
+            # Run transcription using Deepgram's updated API
+            response = await client.transcription.prerecorded.transcribe(
+                {"buffer": audio_bytes},
+                options
             )
             
-            # Extract text and confidence
-            text_parts = []
-            confidence_values = []
-            
-            # Process segments - compatible with both generator and async iterator
-            # The newer version of faster-whisper returns a regular generator, not an async iterator
-            for segment in segments:
-                text_parts.append(segment.text)
-                confidence_values.append(segment.avg_logprob)  # logprob as confidence
-            
-            # Join all text parts
-            transcription = " ".join(text_parts).strip()
-            
-            # Calculate average confidence (convert from log probabilities)
-            avg_confidence = np.exp(np.mean(confidence_values)) if confidence_values else 0.0
-            
-            return transcription, float(avg_confidence)
+            # Extract transcription from the response
+            try:
+                # Access the transcript from the response
+                transcription = response["results"]["channels"][0]["alternatives"][0]["transcript"]
+                
+                # Get confidence (if available)
+                confidence = 0.0
+                if "confidence" in response["results"]["channels"][0]["alternatives"][0]:
+                    confidence = response["results"]["channels"][0]["alternatives"][0]["confidence"]
+                
+                return transcription, confidence
+            except (KeyError, IndexError) as e:
+                logger.error(f"Error parsing Deepgram response: {str(e)}")
+                return "", 0.0
             
         except Exception as e:
-            logger.error(f"Error transcribing audio: {str(e)}")
+            logger.error(f"Error transcribing audio with Deepgram: {str(e)}")
             return "", 0.0
 
 

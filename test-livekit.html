@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LiveKit Connection Test</title>
+    <script src="https://unpkg.com/livekit-client@1.12.3/dist/livekit-client.umd.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="text"],
+      textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      textarea {
+        height: 100px;
+        font-family: monospace;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      #status,
+      #participants,
+      #logs {
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+      }
+      #logs {
+        font-family: monospace;
+        white-space: pre-wrap;
+        height: 200px;
+        overflow-y: auto;
+      }
+      .connected {
+        color: green;
+        font-weight: bold;
+      }
+      .disconnected {
+        color: red;
+        font-weight: bold;
+      }
+      .participant {
+        margin-bottom: 5px;
+        padding: 5px;
+        background-color: #eee;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>LiveKit Connection Test</h1>
+
+    <div class="form-group">
+      <label for="url">LiveKit WebSocket URL:</label>
+      <input
+        type="text"
+        id="url"
+        value="wss://creatigen-hptldaij.livekit.cloud"
+        placeholder="wss://your-livekit-server.com"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="token">Token:</label>
+      <textarea
+        id="token"
+        placeholder="Paste your LiveKit token here"
+      ></textarea>
+    </div>
+
+    <div>
+      <button id="get-token">Get Token from Backend</button>
+      <button id="connect" disabled>Connect</button>
+      <button id="disconnect" disabled>Disconnect</button>
+    </div>
+
+    <div id="status">
+      Status: <span class="disconnected">Disconnected</span>
+    </div>
+
+    <div id="participants">
+      <h3>Participants:</h3>
+      <div id="participant-list">None</div>
+    </div>
+
+    <div>
+      <h3>Logs:</h3>
+      <div id="logs"></div>
+    </div>
+
+    <script>
+      let room;
+
+      const urlInput = document.getElementById("url");
+      const tokenInput = document.getElementById("token");
+      const getTokenBtn = document.getElementById("get-token");
+      const connectBtn = document.getElementById("connect");
+      const disconnectBtn = document.getElementById("disconnect");
+      const statusSpan = document.querySelector("#status span");
+      const participantList = document.getElementById("participant-list");
+      const logsDiv = document.getElementById("logs");
+
+      function log(message) {
+        const timestamp = new Date().toISOString().substring(11, 23);
+        logsDiv.innerHTML += `[${timestamp}] ${message}\n`;
+        logsDiv.scrollTop = logsDiv.scrollHeight;
+      }
+
+      function updateParticipants() {
+        if (!room || !room.participants || room.participants.size === 0) {
+          participantList.innerHTML = "None";
+          return;
+        }
+
+        participantList.innerHTML = "";
+
+        // Add local participant
+        if (room.localParticipant) {
+          const localParticipantDiv = document.createElement("div");
+          localParticipantDiv.className = "participant";
+          localParticipantDiv.textContent = `📱 ${room.localParticipant.identity} (You)`;
+          participantList.appendChild(localParticipantDiv);
+        }
+
+        // Add remote participants
+        room.participants.forEach((participant) => {
+          const participantDiv = document.createElement("div");
+          participantDiv.className = "participant";
+          participantDiv.textContent = `👤 ${participant.identity}`;
+          participantList.appendChild(participantDiv);
+        });
+      }
+
+      // Get a token from the backend
+      async function getTokenFromBackend() {
+        try {
+          getTokenBtn.disabled = true;
+          getTokenBtn.textContent = "Getting token...";
+          log("🔄 Requesting token from backend...");
+          console.log("Requesting token from backend");
+
+          const response = await fetch(
+            "http://127.0.0.1:8000/api/audio/token",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                user_id: "browser_test_user_" + Date.now().toString().slice(-6),
+                room_name: "test_room",
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log("Received token data:", data);
+          tokenInput.value = data.token;
+          log("✅ Received token for room: " + data.room_name);
+
+          // Enable connect button
+          connectBtn.disabled = false;
+        } catch (error) {
+          log(`❌ Error getting token: ${error.message}`);
+          console.error("Token error:", error);
+        } finally {
+          getTokenBtn.disabled = false;
+          getTokenBtn.textContent = "Get Token from Backend";
+        }
+      }
+
+      // Connect to LiveKit
+      async function connectToLiveKit() {
+        const url = urlInput.value.trim();
+        const token = tokenInput.value.trim();
+
+        if (!url || !token) {
+          log("❌ Error: URL and token are required");
+          return;
+        }
+
+        try {
+          connectBtn.disabled = true;
+          connectBtn.textContent = "Connecting...";
+          log(`🔄 Connecting to ${url}...`);
+
+          // Create a new room using the latest API
+          room = new LivekitClient.Room({
+            // Enable reasonable defaults
+            adaptiveStream: true,
+            dynacast: true,
+            disconnectOnBrowserClose: true,
+          });
+
+          // Set up event listeners
+          room.on(LivekitClient.RoomEvent.Connected, () => {
+            log("✅ Connected to room: " + room.name);
+            statusSpan.textContent = "Connected to " + room.name;
+            statusSpan.className = "connected";
+            connectBtn.disabled = true;
+            connectBtn.textContent = "Connect";
+            disconnectBtn.disabled = false;
+            updateParticipants();
+          });
+
+          room.on(LivekitClient.RoomEvent.Disconnected, () => {
+            log("❌ Disconnected from room");
+            statusSpan.textContent = "Disconnected";
+            statusSpan.className = "disconnected";
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+          });
+
+          room.on(
+            LivekitClient.RoomEvent.ParticipantConnected,
+            (participant) => {
+              log(`👤 Participant connected: ${participant.identity}`);
+              updateParticipants();
+            }
+          );
+
+          room.on(
+            LivekitClient.RoomEvent.ParticipantDisconnected,
+            (participant) => {
+              log(`👤 Participant disconnected: ${participant.identity}`);
+              updateParticipants();
+            }
+          );
+
+          // Log any connection errors
+          room.on(LivekitClient.RoomEvent.ConnectionStateChanged, (state) => {
+            log(`🔄 Connection state changed: ${state}`);
+          });
+
+          room.on(LivekitClient.RoomEvent.MediaDevicesError, (e) => {
+            log(`🎤 Media device error: ${e.message}`);
+          });
+
+          room.on(LivekitClient.RoomEvent.ConnectionQualityChanged, () => {
+            log(`📶 Connection quality changed`);
+          });
+
+          room.on(LivekitClient.RoomEvent.SignalConnected, () => {
+            log(`🔔 Signal connected`);
+          });
+
+          // Connect to the room with specific options
+          const connectOptions = {
+            autoSubscribe: true,
+          };
+
+          await room.connect(url, token, connectOptions);
+          log(`🔄 Waiting for connection confirmation...`);
+        } catch (error) {
+          log(`❌ Error connecting: ${error.message}`);
+          console.error("Connection error:", error);
+          connectBtn.disabled = false;
+          connectBtn.textContent = "Connect";
+        }
+      }
+
+      // Disconnect from LiveKit
+      function disconnectFromLiveKit() {
+        if (room) {
+          log("🔄 Disconnecting...");
+          room.disconnect();
+          disconnectBtn.disabled = true;
+          connectBtn.disabled = false;
+        }
+      }
+
+      // Event listeners
+      getTokenBtn.addEventListener("click", getTokenFromBackend);
+      connectBtn.addEventListener("click", connectToLiveKit);
+      disconnectBtn.addEventListener("click", disconnectFromLiveKit);
+
+      // Check if URL is present initially
+      if (urlInput.value.trim()) {
+        log(`🌐 URL set to: ${urlInput.value.trim()}`);
+      }
+
+      log(
+        '🔧 LiveKit test page loaded. Click "Get Token from Backend" to start.'
+      );
+    </script>
+  </body>
+</html>
