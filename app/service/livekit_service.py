@@ -37,8 +37,8 @@ class AudioProcessor:
             logger.info(f"Connected to room {room_name} as {self.room.local_participant.identity}")
             
             # Set up listeners for participants
-            self.room.on("participant_connected", self._on_participant_connected)
-            self.room.on("participant_disconnected", self._on_participant_disconnected)
+            self.room.on(rtc.RoomEvent.ParticipantConnected, self._on_participant_connected)
+            self.room.on(rtc.RoomEvent.ParticipantDisconnected, self._on_participant_disconnected)
             
             # With newer LiveKit SDK, we don't need to manually register existing participants
             # The participant_connected event will be fired for each participant
@@ -74,25 +74,60 @@ class AudioProcessor:
         """Set up listeners for participant's audio tracks."""
         logger.info(f"Setting up participant {participant.identity}")
         
-        # Set up track handlers
-        participant.on("track_subscribed", self._on_track_subscribed)
+        # Instead of using participant.on(), directly process available tracks
+        # and set up room event handlers to catch future track subscriptions
+        
+        # Process any existing tracks
+        for publication in participant.tracks.values():
+            if publication.subscribed and publication.track:
+                await self._process_track(publication.track, publication, participant)
+        
+        # Make sure room has event handlers for future track subscriptions
+        if not hasattr(self, '_track_subscription_handler_set'):
+            self.room.on(rtc.RoomEvent.TrackSubscribed, self._on_track_subscribed)
+            self._track_subscription_handler_set = True
     
     def _on_track_subscribed(self, track, publication, participant):
         """Handle new track subscription."""
-        if track.kind == rtc.TrackKind.AUDIO:
-            logger.info(f"Subscribed to audio track from {participant.identity}")
-            # Set up audio processing
-            track.on("data", self._process_audio_data)
+        asyncio.create_task(self._process_track(track, publication, participant))
     
-    async def _process_audio_data(self, data):
+    async def _process_track(self, track, publication, participant):
+        """Process a track after subscription."""
+        if track.kind == rtc.TrackKind.AUDIO:
+            logger.info(f"Processing audio track from {participant.identity}")
+            # Set up data handler for audio track
+            # Note: The Python SDK may have a different way to handle audio data
+            # Instead of track.on("data"), we need to use the appropriate SDK method
+            # This depends on the specific version of the LiveKit Python SDK
+            try:
+                track.add_data_listener(self._process_audio_data)
+                logger.info(f"Added data listener for track from {participant.identity}")
+            except AttributeError as e:
+                logger.error(f"Error adding data listener: {str(e)}. The SDK may not support this method.")
+                # Alternative approach - check SDK documentation for the correct method
+    
+    def _process_audio_data(self, data):
         """Process incoming audio data."""
         self.audio_buffer.extend(data)
         
         # Process when we have enough data
         if len(self.audio_buffer) >= self.chunk_size:
-            # Pass to transcription callback
-            await self.transcription_callback(bytes(self.audio_buffer), self.session_id)
+            # Pass to transcription callback - handle as async
+            buffer_copy = bytes(self.audio_buffer)
             self.audio_buffer.clear()
+            
+            # Call the transcription callback in an async-safe way
+            asyncio.create_task(self._safe_transcription_callback(buffer_copy))
+    
+    async def _safe_transcription_callback(self, audio_data):
+        """Safely call the transcription callback."""
+        try:
+            if asyncio.iscoroutinefunction(self.transcription_callback):
+                await self.transcription_callback(audio_data, self.session_id)
+            else:
+                self.transcription_callback(audio_data, self.session_id)
+        except Exception as e:
+            logger.error(f"Error in transcription callback: {str(e)}")
     
     async def send_audio(self, audio_data: bytes):
         """Send audio data to the room."""

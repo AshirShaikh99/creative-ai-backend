@@ -18,16 +18,14 @@ async def chat(
     user_id: str = Header(..., description="User ID for the chat session")
 ):
     try:
-        # Use the exact title as collection name
-        collection_name = request.collection_name if request.collection_name else None
-        logger.info(f"Processing chat request for user: {user_id}, deep_research: {request.deep_research}, collection: {collection_name}")
+        # Log request details
+        logger.info(f"Processing chat request for user: {user_id}, deep_research: {request.deep_research}")
         
         session = await chatbot.process_message(
             user_id=user_id,
             message=request.message,
             session_id=request.session_id,
-            deep_research=request.deep_research,
-            collection_name=collection_name  # Pass the exact collection name
+            deep_research=request.deep_research
         )
         
         if not session.messages:

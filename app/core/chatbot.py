@@ -1,10 +1,9 @@
-from typing import Dict, Optional, List, Tuple
+from typing import Dict, Optional, List
 from app.models.model import Message, ChatSession, ChatResponse
 from uuid import UUID
-from groq import AsyncGroq
+from ai21 import AI21Client
+from ai21.models.chat import UserMessage, SystemMessage
 from app.config.config import get_settings
-from app.service.qdrant_service import QdrantService
-from app.utils.search import QdrantSearch, SearchResult
 from functools import lru_cache
 import json
 import hashlib
@@ -23,30 +22,21 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
-groq_client = AsyncGroq(api_key=settings.GROQ_API_KEY)
+# Initialize AI21 client with API key
+ai21_client = AI21Client(api_key=settings.AI21_API_KEY)
 
 class CreativeAIChatbot:
     def __init__(self):
         self.sessions: Dict[UUID, ChatSession] = {}
-        # Initialize semantic search
-        qdrant_client = QdrantService.get_instance()
-        self.semantic_search = QdrantSearch(qdrant_client=qdrant_client)
 
     async def process_message(
         self,
         user_id: str,
         message: str,
         session_id: Optional[UUID] = None,
-        deep_research: bool = False,
-        collection_name: Optional[str] = None
+        deep_research: bool = False
     ) -> ChatSession:
-        logger.info(f"Processing message for user: {user_id} (deep_research: {deep_research}, collection: {collection_name})")
-        
-        # Add detailed logging for collection name
-        if collection_name:
-            logger.info(f"Using specified collection for search: {collection_name}")
-        else:
-            logger.warning("No collection name provided, falling back to default 'documents' collection")
+        logger.info(f"Processing message for user: {user_id} (deep_research: {deep_research})")
         
         # Get or create session
         if session_id and session_id in self.sessions:
@@ -59,62 +49,14 @@ class CreativeAIChatbot:
         session.messages.append(Message(content=message, role="user"))
         
         try:
-            # Perform semantic search on the specified collection if provided
-            search_results = []
-            if collection_name:
-                search_results = await self.semantic_search.search(
-                    query=message,
-                    collection_name=collection_name,  # Use the specified collection
-                    limit=3,
-                    score_threshold=0.7
-                )
-                # Log search results with more detail
-                logger.info(f"Search results from collection {collection_name}:")
-                if not search_results:
-                    logger.warning("No search results found")
-                else:
-                    logger.info(f"Found {len(search_results)} results")
-                    for idx, result in enumerate(search_results, 1):
-                        logger.info("-" * 50)  # Separator for better visibility
-                        logger.info(f"Result {idx}:")
-                        try:
-                            logger.info(f"  Content type: {type(result.content)}")
-                            logger.info(f"  Content length: {len(result.content) if result.content else 0}")
-                            logger.info(f"  Content: {result.content[:500] if result.content else 'No content'}")
-                            logger.info(f"  Score: {result.score}")
-                            logger.info(f"  Source: {result.source}")
-                            logger.info(f"  Metadata: {result.metadata}")
-                        except Exception as e:
-                            logger.error(f"Error logging result {idx}: {str(e)}")
-                for idx, result in enumerate(search_results, 1):
-                    logger.info(f"Result {idx}:")
-                    logger.info(f"  Content: {result.content[:200]}...")  # First 200 chars
-                    logger.info(f"  Score: {result.score}")
-                    logger.info(f"  Source: {result.source}")
-            else:
-                # Fallback to default "documents" collection
-                search_results = await self.semantic_search.search(
-                    query=message,
-                    collection_name=collection_name,
-                    limit=3,
-                    score_threshold=0.7
-                )
-                logger.info("Search results from default 'documents' collection:")
-                for idx, result in enumerate(search_results, 1):
-                    logger.info(f"Result {idx}:")
-                    logger.info(f"  Content: {result.content[:200]}...")
-                    logger.info(f"  Score: {result.score}")
-                    logger.info(f"  Source: {result.source}")
-            
-            combined_context = {"search_results": search_results, "research_findings": [], "research_sources": []}
+            combined_context = {"research_findings": [], "research_sources": []}
             
             # Only perform research if deep_research is True
             if deep_research:
                 logger.info("Starting deep research process...")
-                formatted_context = self._format_context(search_results)
                 research_result = await research_engine.research_topic(
                     query=message,
-                    context=formatted_context,
+                    context="",
                     deep_research=True
                 )
                 
@@ -132,32 +74,6 @@ class CreativeAIChatbot:
         except Exception as e:
             logger.error(f"Error processing message: {str(e)}", exc_info=True)
             raise
-
-    @lru_cache(maxsize=1000)
-    def _format_context_cached(self, context_tuple: Tuple[Tuple[str, str, float, str], ...]) -> str:
-        """Cached version of context formatting. Takes tuple for immutability."""
-        if not context_tuple:
-            return ""
-            
-        context_parts = []
-        for source, content, score, metadata_type in context_tuple:
-            context_parts.append(f"Context from {source}:\n{content}\n")
-        
-        return "\n".join(context_parts)
-    
-    def _format_context(self, search_results: List[SearchResult]) -> str:
-        """Format search results into context for the LLM with caching"""
-        # Convert SearchResult objects to tuple for caching
-        context_tuple = tuple(
-            (
-                result.source if hasattr(result, 'source') else "unknown",
-                result.content if hasattr(result, 'content') else "",
-                float(result.score) if hasattr(result, 'score') else 0.0,
-                result.metadata.get('type', '') if hasattr(result, 'metadata') else ""
-            ) 
-            for result in search_results
-        )
-        return self._format_context_cached(context_tuple)
 
     @lru_cache(maxsize=1000)
     def _cache_llm_response(self, message_hash: str, context_hash: str) -> str:
@@ -185,25 +101,31 @@ class CreativeAIChatbot:
                     research_context += "Key Findings:\n" + "\n".join(f"- {detail}" for detail in research_finding['details'])
                 
                 # Combine with other context but prioritize research findings
-                context = research_context + "\n\n" + self._format_combined_context(combined_context)
+                context = research_context + "\n\n" + self._format_research_context(combined_context)
                 
                 messages = [
-                    {"role": "system", "content": self._get_system_prompt()},
-                    {"role": "system", "content": f"Here is relevant research information:\n{context}"},
-                    {"role": "user", "content": message}
+                    SystemMessage(content=self._get_system_prompt()),
+                    SystemMessage(content=f"Here is relevant research information:\n{context}"),
+                    UserMessage(content=message)
                 ]
                 
-                completion = await groq_client.chat.completions.create(
-                    model="mixtral-8x7b-32768",
+                # Use AI21 Client for chat completion
+                response = ai21_client.chat.completions.create(
+                    model="jamba-1.6-large",
                     messages=messages,
-                    temperature=0.8,
-                    stream=False
+                    temperature=0.9,
+                    max_tokens=500,
+                    top_p=0.95,
+                    presence_penalty=0.6,
+                    frequency_penalty=0.5,
+                    response_format={"type": "text"},
+                    stop=None,
                 )
                 
-                return completion.choices[0].message.content
+                return response.choices[0].message.content
 
-            # Otherwise, proceed with normal response generation
-            context = self._format_combined_context(combined_context)
+            # Otherwise, proceed with normal response generation without context
+            context = self._format_research_context(combined_context)
             message_hash = hashlib.sha256(message.encode()).hexdigest()
             context_hash = hashlib.sha256(context.encode()).hexdigest()
             
@@ -215,40 +137,37 @@ class CreativeAIChatbot:
             except Exception as e:
                 logger.warning(f"Cache retrieval failed: {str(e)}")
             
+            # If no research findings, just use the message directly
             messages = [
-                {"role": "system", "content": self._get_system_prompt()},
-                {"role": "system", "content": f"Here is relevant information from search and research:\n{context}"},
-                {"role": "user", "content": message}
+                SystemMessage(content=self._get_system_prompt()),
+                UserMessage(content=message)
             ]
             
-            completion = await groq_client.chat.completions.create(
-                model="mixtral-8x7b-32768",
+            # Add research context if available
+            if context:
+                messages.insert(1, SystemMessage(content=f"Here is relevant research information:\n{context}"))
+            
+            # Use AI21 Client for chat completion
+            response = ai21_client.chat.completions.create(
+                model="jamba-1.5-mini",
                 messages=messages,
                 temperature=0.8,
-                stream=False
             )
             
-            response = f"{completion.choices[0].message.content}"
-
+            response_text = response.choices[0].message.content
             
             # Cache the response
             self._cache_llm_response.cache_clear()
             self._cache_llm_response(message_hash, context_hash)
             
-            return response
+            return response_text
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}")
             raise Exception(f"Error generating response: {str(e)}")
 
-    def _format_combined_context(self, combined_context: Dict) -> str:
-        """Format both search results and research findings into a single context"""
+    def _format_research_context(self, combined_context: Dict) -> str:
+        """Format research findings into a single context"""
         context_parts = []
-        
-        # Add search results - handle SearchResult objects
-        for result in combined_context["search_results"]:
-            source = result.source if hasattr(result, 'source') else "unknown"
-            content = result.content if hasattr(result, 'content') else ""
-            context_parts.append(f"Search Result from {source}:\n{content}\n")
         
         # Add research findings with safe key access
         for finding in combined_context["research_findings"]:

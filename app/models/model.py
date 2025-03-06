@@ -21,7 +21,6 @@ class ChatRequest(BaseModel):
     message: str
     session_id: Optional[UUID] = None
     deep_research: bool = False
-    collection_name: Optional[str] = None  # Add this field
 
 class ChatResponse(BaseModel):
     message: str
