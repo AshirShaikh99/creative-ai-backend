@@ -1,0 +1,61 @@
+flowchart TD
+    title["Microservice-based E-commerce Platform Architecture"]
+    subgraph frontend["Frontend"]
+        api_gateway
+    end
+    subgraph backend["Backend"]
+        user_service
+        product_catalog
+        order_management
+        payment_processing
+    end
+    subgraph data["Data"]
+        postgres_db
+        redis_cache
+    end
+    subgraph infrastructure["Infrastructure"]
+        api_gateway
+        kafka_mq
+    end
+    subgraph security["Security"]
+        jwt_auth
+    end
+    user_service["User Service (Node.js, TypeScript)"]
+    product_catalog["Product Catalog (Go, gRPC)"]
+    order_management["Order Management (Java, Spring Boot)"]
+    payment_processing["Payment Processing (Python, Django)"]
+    postgres_db[("PostgreSQL (PostgreSQL)")]
+    redis_cache["Redis (Redis)"]
+    kafka_mq["Kafka (Apache Kafka)"]
+    api_gateway["API Gateway (Nginx)"]
+    jwt_auth["JWT Authentication (JWT)"]
+    user_service --> api_gateway
+    product_catalog --> api_gateway
+    order_management --> api_gateway
+    payment_processing --> api_gateway
+    user_service --> postgres_db
+    product_catalog --> postgres_db
+    order_management --> postgres_db
+    payment_processing --> postgres_db
+    user_service --> redis_cache
+    product_catalog --> redis_cache
+    order_management --> redis_cache
+    payment_processing --> redis_cache
+    user_service --> jwt_auth
+    product_catalog --> jwt_auth
+    order_management --> jwt_auth
+    payment_processing --> jwt_auth
+    user_service --> kafka_mq
+    product_catalog --> kafka_mq
+    order_management --> kafka_mq
+    payment_processing --> kafka_mq
+    style user_service fill:#007ACC,stroke:solid
+    style product_catalog fill:#4CAF50,stroke:solid
+    style order_management fill:#FFC107,stroke:solid
+    style payment_processing fill:#F44336,stroke:solid
+    style postgres_db fill:#3E5252,stroke:dashed
+    style redis_cache fill:#9C27B0,stroke:dotted
+    style kafka_mq fill:#2196F3,stroke:solid
+    style api_gateway fill:#009688,stroke:solid
+    style jwt_auth fill:#E91E63,stroke:solid
+    style title fill:#FFFFFF,stroke:#FFFFFF,color:#000000,font-size:16px

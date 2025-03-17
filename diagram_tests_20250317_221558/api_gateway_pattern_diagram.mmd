@@ -1,0 +1,34 @@
+flowchart TD
+    title["API Gateway Pattern"]
+    subgraph backend["Backend"]
+        api_gateway
+        authentication_service
+        rate_limiter
+        service1
+        service2
+    end
+    subgraph data["Data"]
+        database1
+        database2
+    end
+    api_gateway["API Gateway (Nginx, Kong, or AWS API Gateway)"]
+    authentication_service["Authentication Service (OAuth2 or JWT)"]
+    rate_limiter["Rate Limiter (Nginx, Redis, or AWS WAF)"]
+    service1["Service 1 (Node.js or Python)"]
+    service2["Service 2 (Node.js or Python)"]
+    database1["Database 1 (PostgreSQL or MongoDB)"]
+    database2["Database 2 (PostgreSQL or MongoDB)"]
+    api_gateway --> authentication_service
+    api_gateway --> rate_limiter
+    api_gateway --> service1
+    api_gateway --> service2
+    service1 --> database1
+    service2 --> database2
+    style api_gateway fill:#008CBA,stroke:solid
+    style authentication_service fill:#F4D03F,stroke:dashed
+    style rate_limiter fill:#FF4B4B,stroke:dotted
+    style service1 fill:#C0C0C0,stroke:solid
+    style service2 fill:#C0C0C0,stroke:solid
+    style database1 fill:#70DB93,stroke:solid
+    style database2 fill:#70DB93,stroke:solid
+    style title fill:#FFFFFF,stroke:#FFFFFF,color:#000000,font-size:16px

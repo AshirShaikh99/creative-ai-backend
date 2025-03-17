@@ -1,0 +1,129 @@
+{
+    "type": "software_architecture",
+    "title": "Serverless Photo Processing Application Architecture",
+    "nodes": [
+        {
+            "id": "ui",
+            "label": "User Interface",
+            "type": "frontend",
+            "description": "Allows users to upload photos and view processed results.",
+            "technology": "React"
+        },
+        {
+            "id": "auth",
+            "label": "Authentication Service",
+            "type": "security",
+            "description": "Manages user authentication and authorization.",
+            "technology": "Auth0"
+        },
+        {
+            "id": "api",
+            "label": "API Gateway",
+            "type": "backend",
+            "description": "Exposes HTTP APIs for the frontend and external integrations.",
+            "technology": "AWS API Gateway"
+        },
+        {
+            "id": "storage",
+            "label": "Object Storage",
+            "type": "data",
+            "description": "Stores raw and processed photos.",
+            "technology": "AWS S3"
+        },
+        {
+            "id": "database",
+            "label": "Managed Database",
+            "type": "data",
+            "description": "Stores metadata and user information.",
+            "technology": "AWS RDS"
+        },
+        {
+            "id": "function1",
+            "label": "Image Upload Function",
+            "type": "infrastructure",
+            "description": "Handles image uploading and metadata insertion.",
+            "technology": "AWS Lambda (Node.js)"
+        },
+        {
+            "id": "function2",
+            "label": "Image Processing Function",
+            "type": "infrastructure",
+            "description": "Performs image processing tasks.",
+            "technology": "AWS Lambda (Python)"
+        }
+    ],
+    "connections": [
+        {
+            "from": "ui",
+            "to": "api",
+            "label": "HTTP API",
+            "type": "api_call",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "auth",
+            "to": "api",
+            "label": "Authentication",
+            "type": "authentication_flow",
+            "protocol": "OAuth"
+        },
+        {
+            "from": "api",
+            "to": "function1",
+            "label": "Trigger on upload",
+            "type": "event_flow",
+            "protocol": "AWS EventBridge"
+        },
+        {
+            "from": "function1",
+            "to": "storage",
+            "label": "Store raw photo",
+            "type": "data_transformation",
+            "protocol": "AWS S3 SDK"
+        },
+        {
+            "from": "function1",
+            "to": "database",
+            "label": "Insert metadata",
+            "type": "database_query",
+            "protocol": "AWS RDS SDK"
+        },
+        {
+            "from": "storage",
+            "to": "function2",
+            "label": "Trigger processing",
+            "type": "event_flow",
+            "protocol": "AWS EventBridge"
+        },
+        {
+            "from": "function2",
+            "to": "storage",
+            "label": "Store processed photo",
+            "type": "data_transformation",
+            "protocol": "AWS S3 SDK"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "nodes": ["ui"]
+        },
+        {
+            "id": "backend",
+            "label": "Backend",
+            "nodes": ["api"]
+        },
+        {
+            "id": "data",
+            "label": "Data",
+            "nodes": ["storage", "database"]
+        },
+        {
+            "id": "infrastructure",
+            "label": "Infrastructure",
+            "nodes": ["function1", "function2"]
+        },
+        {
+            "id": "security",
+            "label":

@@ -1,0 +1,124 @@
+{
+    "type": "software_architecture",
+    "title": "Service Mesh Architecture",
+    "nodes": [
+        {
+            "id": "istio-pilot",
+            "label": "Istio Pilot",
+            "type": "control_plane",
+            "description": "Manages data plane services and provides service discovery",
+            "technology": "Istio"
+        },
+        {
+            "id": "istio-citadel",
+            "label": "Istio Citadel",
+            "type": "security",
+            "description": "Provides identity and access control for the mesh",
+            "technology": "Istio"
+        },
+        {
+            "id": "istio-galley",
+            "label": "Istio Galley",
+            "type": "control_plane",
+            "description": "Handles configuration validation and distribution",
+            "technology": "Istio"
+        },
+        {
+            "id": "istio-sidecar",
+            "label": "Istio Sidecar",
+            "type": "infrastructure",
+            "description": "Intercepts and manages traffic for each service instance",
+            "technology": "Istio"
+        },
+        {
+            "id": "service-a",
+            "label": "Service A",
+            "type": "backend_service",
+            "description": "First service in the data plane",
+            "technology": "gRPC"
+        },
+        {
+            "id": "service-b",
+            "label": "Service B",
+            "type": "backend_service",
+            "description": "Second service in the data plane",
+            "technology": "REST"
+        },
+        {
+            "id": "service-c",
+            "label": "Service C",
+            "type": "backend_service",
+            "description": "Third service in the data plane",
+            "technology": "gRPC"
+        },
+        {
+            "id": "envoy",
+            "label": "Envoy",
+            "type": "infrastructure",
+            "description": "Intercepts and manages traffic for each service instance",
+            "technology": "Envoy"
+        }
+    ],
+    "connections": [
+        {
+            "from": "istio-pilot",
+            "to": "istio-sidecar",
+            "label": "Service discovery",
+            "type": "service_discovery",
+            "protocol": "gRPC"
+        },
+        {
+            "from": "istio-citadel",
+            "to": "istio-sidecar",
+            "label": "Identity and access control",
+            "type": "authentication",
+            "protocol": "mTLS"
+        },
+        {
+            "from": "istio-galley",
+            "to": "istio-sidecar",
+            "label": "Configuration distribution",
+            "type": "configuration",
+            "protocol": "gRPC"
+        },
+        {
+            "from": "istio-sidecar",
+            "to": "envoy",
+            "label": "Intercepts and manages traffic",
+            "type": "data_plane",
+            "protocol": "HTTP/2"
+        },
+        {
+            "from": "service-a",
+            "to": "service-b",
+            "label": "Service-to-service communication",
+            "type": "api_call",
+            "protocol": "HTTP/2"
+        },
+        {
+            "from": "service-b",
+            "to": "service-c",
+            "label": "Service-to-service communication",
+            "type": "api_call",
+            "protocol": "HTTP/2"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "data_plane",
+            "label": "Data Plane",
+            "nodes": ["service-a", "service-b", "service-c", "istio-sidecar", "envoy"]
+        },
+        {
+            "id": "control_plane",
+            "label": "Control Plane",
+            "nodes": ["istio-pilot", "istio-citadel", "istio-galley"]
+        }
+    ],
+    "styles": {
+        "istio-pilot": {"color": "#0072C6", "shape": "ellipse", "border": "solid"},
+        "istio-citadel": {"color": "#0072C6", "shape": "ellipse", "border": "solid"},
+        "istio-galley": {"color": "#0072C6", "shape": "ellipse", "border": "solid"},
+        "istio-sidecar": {"color": "#D22128", "shape": "rectangle", "border": "dashed"},
+        "service-a": {"color": "#FFC107", "shape": "rectangle", "border": "solid"},
+        "service-b": {"color": "#4CAF50", "shape": "rectangle",

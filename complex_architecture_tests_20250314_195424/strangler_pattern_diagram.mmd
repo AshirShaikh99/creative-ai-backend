@@ -1,0 +1,184 @@
+{
+    "type": "software_architecture",
+    "title": "Strangler Pattern Architecture",
+    "nodes": [
+        {
+            "id": "monolith",
+            "label": "Monolithic System",
+            "type": "legacy",
+            "description": "The monolithic legacy application",
+            "technology": "Java/Python/Ruby"
+        },
+        {
+            "id": "facade",
+            "label": "API Facade",
+            "type": "frontend",
+            "description": "API Gateway and Facade for the legacy system",
+            "technology": "Node.js/Go/Java"
+        },
+        {
+            "id": "microservice1",
+            "label": "Microservice 1",
+            "type": "backend",
+            "description": "First incrementally migrated microservice",
+            "technology": "Spring Boot/Express.js/Flask"
+        },
+        {
+            "id": "microservice2",
+            "label": "Microservice 2",
+            "type": "backend",
+            "description": "Second incrementally migrated microservice",
+            "technology": "Spring Boot/Express.js/Flask"
+        },
+        {
+            "id": "database1",
+            "label": "Database 1",
+            "type": "database",
+            "description": "New database for microservices",
+            "technology": "PostgreSQL/MySQL/MongoDB"
+        },
+        {
+            "id": "database2",
+            "label": "Database 2",
+            "type": "database",
+            "description": "New database for microservices",
+            "technology": "PostgreSQL/MySQL/MongoDB"
+        },
+        {
+            "id": "mq",
+            "label": "Message Queue",
+            "type": "infrastructure",
+            "description": "Asynchronous message communication",
+            "technology": "RabbitMQ/Kafka/ActiveMQ"
+        },
+        {
+            "id": "cache",
+            "label": "Cache",
+            "type": "infrastructure",
+            "description": "Caching for increased performance",
+            "technology": "Redis/Memcached"
+        }
+    ],
+    "connections": [
+        {
+            "from": "monolith",
+            "to": "facade",
+            "label": "API calls",
+            "type": "api",
+            "protocol": "HTTP/REST"
+        },
+        {
+            "from": "facade",
+            "to": "microservice1",
+            "label": "API calls",
+            "type": "api",
+            "protocol": "HTTP/REST"
+        },
+        {
+            "from": "facade",
+            "to": "microservice2",
+            "label": "API calls",
+            "type": "api",
+            "protocol": "HTTP/REST"
+        },
+        {
+            "from": "microservice1",
+            "to": "database1",
+            "label": "Database queries",
+            "type": "database",
+            "protocol": "SQL"
+        },
+        {
+            "from": "microservice2",
+            "to": "database2",
+            "label": "Database queries",
+            "type": "database",
+            "protocol": "SQL"
+        },
+        {
+            "from": "microservice1",
+            "to": "mq",
+            "label": "Event flow",
+            "type": "event",
+            "protocol": "AMQP/Kafka"
+        },
+        {
+            "from": "microservice2",
+            "to": "mq",
+            "label": "Event flow",
+            "type": "event",
+            "protocol": "AMQP/Kafka"
+        },
+        {
+            "from": "mq",
+            "to": "cache",
+            "label": "Data transformation",
+            "type": "data",
+            "protocol": "JSON"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "nodes": ["facade"]
+        },
+        {
+            "id": "backend",
+            "label": "Backend",
+            "nodes": ["monolith", "microservice1", "microservice2"]
+        },
+        {
+            "id": "data",
+            "label": "Data",
+            "nodes": ["database1", "database2"]
+        },
+        {
+            "id": "infrastructure",
+            "label": "Infrastructure",
+            "nodes": ["mq", "cache"]
+        }
+    ],
+    "styles": {
+        "monolith": {
+            "color": "#8B0000",
+            "shape": "rect",
+            "border": "dashed"
+        },
+        "facade": {
+            "color": "#1E90FF",
+            "shape": "rhombus",
+            "border": "solid"
+        },
+        "microservice1": {
+            "color": "#FFA500",
+            "shape": "octagon",
+            "border": "solid"
+        },
+        "microservice2": {
+            "color": "#008000",
+            "shape": "ellipse",
+            "border": "solid"
+        },
+        "database1": {
+            "color": "#000080",
+            "shape": "cylinder",
+            "border": "dotted"
+        },
+        "database2": {
+            "color": "#4B0082",
+            "shape": "cube",
+            "border": "dotted"
+        },
+        "mq": {
+            "color": "#800080",
+            "shape": "trapezoid",
+            "border": "double"
+        },
+        "cache": {
+            "color": "#8B4513",
+            "shape": "parallelogram",
+            "border": "dashdot"
+        }
+    }
+}

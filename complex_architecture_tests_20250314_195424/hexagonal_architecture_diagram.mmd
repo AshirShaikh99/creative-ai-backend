@@ -1,0 +1,179 @@
+{
+    "type": "software_architecture",
+    "title": "Insurance Claims Processing System Architecture",
+    "nodes": [
+        {
+            "id": "domain-core",
+            "label": "Domain Core",
+            "type": "domain",
+            "description": "Handles business logic and rules for insurance claims processing",
+            "technology": "Java, Kotlin, or C#"
+        },
+        {
+            "id": "application-services",
+            "label": "Application Services",
+            "type": "services",
+            "description": "Orchestrates the interaction between the domain core, adapters, and external services",
+            "technology": "Java, Kotlin, or C#"
+        },
+        {
+            "id": "ui-adapter",
+            "label": "UI Adapter",
+            "type": "adapter",
+            "description": "Communicates with the application services and renders the UI for users",
+            "technology": "React or Angular"
+        },
+        {
+            "id": "database-adapter",
+            "label": "Database Adapter",
+            "type": "adapter",
+            "description": "Manages data persistence and retrieval for the domain core",
+            "technology": "PostgreSQL, MySQL, or MongoDB"
+        },
+        {
+            "id": "external-service-adapter",
+            "label": "External Service Adapter",
+            "type": "adapter",
+            "description": "Integrates with external services for additional information and processing",
+            "technology": "REST APIs or gRPC"
+        },
+        {
+            "id": "message-queue",
+            "label": "Message Queue",
+            "type": "infrastructure",
+            "description": "Handles event-driven communication between components",
+            "technology": "Apache Kafka or RabbitMQ"
+        },
+        {
+            "id": "api-gateway",
+            "label": "API Gateway",
+            "type": "infrastructure",
+            "description": "Provides a single entry point for all external API calls",
+            "technology": "Kong, NGINX, or AWS API Gateway"
+        },
+        {
+            "id": "load-balancer",
+            "label": "Load Balancer",
+            "type": "infrastructure",
+            "description": "Distributed incoming traffic across multiple instances of the UI and application services",
+            "technology": "HAProxy, NGINX, or AWS ELB"
+        },
+        {
+            "id": "cache",
+            "label": "Cache",
+            "type": "infrastructure",
+            "description": "Stores frequently accessed data for fast retrieval",
+            "technology": "Redis or Memcached"
+        }
+    ],
+    "connections": [
+        {
+            "from": "application-services",
+            "to": "domain-core",
+            "label": "Driven by use cases",
+            "type": "api-call",
+            "protocol": "gRPC"
+        },
+        {
+            "from": "database-adapter",
+            "to": "domain-core",
+            "label": "Stores and retrieves data",
+            "type": "database-query",
+            "protocol": "JDBC"
+        },
+        {
+            "from": "ui-adapter",
+            "to": "application-services",
+            "label": "Presents UI to users",
+            "type": "api-call",
+            "protocol": "HTTP/REST"
+        },
+        {
+            "from": "external-service-adapter",
+            "to": "application-services",
+            "label": "Integrates with external services",
+            "type": "api-call",
+            "protocol": "HTTP/REST"
+        },
+        {
+            "from": "message-queue",
+            "to": "external-service-adapter",
+            "label": "Event-driven integration",
+            "type": "event-flow",
+            "protocol": "Apache Kafka"
+        },
+        {
+            "from": "message-queue",
+            "to": "database-adapter",
+            "label": "Data synchronization",
+            "type": "event-flow",
+            "protocol": "Apache Kafka"
+        },
+        {
+            "from": "api-gateway",
+            "to": "ui-adapter",
+            "label": "Single entry point for UIs",
+            "type": "api-call",
+            "protocol": "HTTP/REST"
+        },
+        {
+            "from": "load-balancer",
+            "to": "ui-adapter",
+            "label": "Distributes UI traffic",
+            "type": "load-balancing",
+            "protocol": "HTTP/REST"
+        },
+        {
+            "from": "load-balancer",
+            "to": "application-services",
+            "label": "Distributes application traffic",
+            "type": "load-balancing",
+            "protocol": "HTTP/REST"
+        },
+        {
+            "from": "cache",
+            "to": "database-adapter",
+            "label": "Fast data retrieval",
+            "type": "data-transformation",
+            "protocol": "Cache-aside"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "nodes": ["ui-adapter"]
+        },
+        {
+            "id": "backend",
+            "label": "Backend",
+            "nodes": [
+                "application-services",
+                "domain-core",
+                "database-adapter",
+                "external-service-adapter"
+            ]
+        },
+        {
+            "id": "data",
+            "label": "Data",
+            "nodes": ["database-adapter", "message-queue", "cache"]
+        },
+        {
+            "id": "infrastructure",
+            "label": "Infrastructure",
+            "nodes": ["message-queue", "api-gateway", "load-balancer", "cache"]
+        }
+    ],
+    "styles": {
+        "domain-core": {"color": "#3F51B5", "shape": "polygon", "border": "dashed"},
+        "application-services": {"color": "#FFC107", "shape": "box", "border": "solid"},
+        "ui-adapter": {"color": "#4CAF50", "shape": "roundrectangle", "border": "solid"},
+        "database-adapter": {"color": "#2196F3", "shape": "cylinder", "border": "solid"},
+        "external-service-adapter": {"color": "#9C27B0", "shape": "ellipse", "border": "solid"},
+        "message-queue": {"color": "#00BCD4", "shape": "parallelogram", "border": "solid"},
+        "api-gateway": {"color": "#009688", "shape": "diamond", "border": "solid"},
+        "load-balancer": {"color": "#607D8B", "shape": "trapezoid", "border": "solid"},
+        "cache": {"color": "#FF5722", "shape": "rhombus", "border": "solid"}
+    }
+}

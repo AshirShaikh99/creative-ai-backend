@@ -1,0 +1,137 @@
+{
+    "type": "software_architecture",
+    "title": "CQRS System Architecture",
+    "nodes": [
+        {
+            "id": "ui",
+            "label": "Frontend UI",
+            "type": "frontend",
+            "description": "Handles user interactions and displays data",
+            "technology": "React"
+        },
+        {
+            "id": "client",
+            "label": "Client Library",
+            "type": "frontend",
+            "description": "Provides APIs for frontend UI to interact with backend services",
+            "technology": "JavaScript"
+        },
+        {
+            "id": "command-service",
+            "label": "Command Service",
+            "type": "backend",
+            "description": "Handles writes to the system and updates the write model",
+            "technology": "Node.js"
+        },
+        {
+            "id": "query-service",
+            "label": "Query Service",
+            "type": "backend",
+            "description": "Handles reads from the system and queries the read model",
+            "technology": "Node.js"
+        },
+        {
+            "id": "write-model",
+            "label": "Write Model",
+            "type": "database",
+            "description": "Database for storing writes and updates",
+            "technology": "MongoDB"
+        },
+        {
+            "id": "read-model",
+            "label": "Read Model",
+            "type": "database",
+            "description": "Database for storing reads and queries",
+            "technology": "Elasticsearch"
+        },
+        {
+            "id": "message-queue",
+            "label": "Message Queue",
+            "type": "infrastructure",
+            "description": "Stores and forwards messages between services",
+            "technology": "RabbitMQ"
+        },
+        {
+            "id": "cache",
+            "label": "Cache",
+            "type": "infrastructure",
+            "description": "Caches frequently used data to improve performance",
+            "technology": "Redis"
+        },
+        {
+            "id": "security",
+            "label": "Security",
+            "type": "security",
+            "description": "Authentication and authorization for the system",
+            "technology": "OAuth2"
+        }
+    ],
+    "connections": [
+        {
+            "from": "ui",
+            "to": "client",
+            "label": "API calls",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "client",
+            "to": "command-service",
+            "label": "API calls",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "command-service",
+            "to": "write-model",
+            "label": "Database queries",
+            "type": "database",
+            "protocol": "MongoDB"
+        },
+        {
+            "from": "write-model",
+            "to": "message-queue",
+            "label": "Event flows",
+            "type": "event",
+            "protocol": "RabbitMQ"
+        },
+        {
+            "from": "message-queue",
+            "to": "query-service",
+            "label": "Event flows",
+            "type": "event",
+            "protocol": "RabbitMQ"
+        },
+        {
+            "from": "query-service",
+            "to": "read-model",
+            "label": "Database queries",
+            "type": "database",
+            "protocol": "Elasticsearch"
+        },
+        {
+            "from": "query-service",
+            "to": "cache",
+            "label": "Data transformations",
+            "type": "cache",
+            "protocol": "Redis"
+        },
+        {
+            "from": "ui",
+            "to": "query-service",
+            "label": "API calls",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "security",
+            "to": "client",
+            "label": "Authentication flows",
+            "type": "security",
+            "protocol": "OAuth2"
+        },
+        {
+            "from": "security",
+            "to": "command-service",
+            "label": "Authentication flows",
+            "type": "

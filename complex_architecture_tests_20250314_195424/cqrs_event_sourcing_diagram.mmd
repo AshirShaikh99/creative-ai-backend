@@ -1,0 +1,116 @@
+{
+  "type": "software_architecture",
+  "title": "E-Commerce System Architecture",
+  "nodes": [
+    {
+      "id": "ui",
+      "label": "Frontend",
+      "type": "frontend",
+      "description": "User interface and client-side logic",
+      "technology": "React/Angular"
+    },
+    {
+      "id": "api-gateway",
+      "label": "API Gateway",
+      "type": "backend",
+      "description": "Entrypoint for all client requests",
+      "technology": "Node.js/Kong"
+    },
+    {
+      "id": "command-service",
+      "label": "Command Service",
+      "type": "backend",
+      "description": "Processes commands and publishes events",
+      "technology": "Go/Java"
+    },
+    {
+      "id": "event-store",
+      "label": "Event Store",
+      "type": "database",
+      "description": "Persists events and ensures eventual consistency",
+      "technology": "Event Store/AWS DynamoDB"
+    },
+    {
+      "id": "read-model-1",
+      "label": "Read Model 1",
+      "type": "database",
+      "description": "Optimized for a specific query pattern",
+      "technology": "PostgreSQL/MongoDB"
+    },
+    {
+      "id": "read-model-2",
+      "label": "Read Model 2",
+      "type": "database",
+      "description": "Optimized for a different query pattern",
+      "technology": "Cassandra/Redis"
+    },
+    {
+      "id": "projection-service",
+      "label": "Projection Service",
+      "type": "backend",
+      "description": "Handles read model updates based on events",
+      "technology": "Go/Java"
+    },
+    {
+      "id": "cache",
+      "label": "Cache",
+      "type": "infrastructure",
+      "description": "Speeds up read operations with in-memory data",
+      "technology": "Redis/Memcached"
+    },
+    {
+      "id": "message-queue",
+      "label": "Message Queue",
+      "type": "infrastructure",
+      "description": "Decouples components for asynchronous communication",
+      "technology": "RabbitMQ/Apache Kafka"
+    },
+    {
+      "id": "auth-service",
+      "label": "Auth Service",
+      "type": "backend",
+      "description": "Manages user authentication and authorization",
+      "technology": "Node.js/Go"
+    },
+    {
+      "id": "payment-service",
+      "label": "Payment Service",
+      "type": "external",
+      "description": "Handles payment processing and integrates with external systems",
+      "technology": "Stripe/PayPal"
+    }
+  ],
+  "connections": [
+    {
+      "from": "ui",
+      "to": "api-gateway",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "api-gateway",
+      "to": "command-service",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "command-service",
+      "to": "event-store",
+      "label": "Event Publishing",
+      "type": "event",
+      "protocol": "Event Sourcing"
+    },
+    {
+      "from": "event-store",
+      "to": "projection-service",
+      "label": "Event Notification",
+      "type": "event",
+      "protocol": "Event Sourcing"
+    },
+    {
+      "from": "projection-service",
+      "to": "read-model-1",
+      "label": "Data Transformation",
+      "type":

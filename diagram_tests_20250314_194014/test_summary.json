@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Microservice_Architecture",
+    "prompt": "Create a software architecture diagram for a microservice-based e-commerce platform with user service, product catalog, order management, and payment processing.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This is a software architecture diagram for a microservice-based e-commerce platform, consisting of a frontend, backend, data, and infrastructure layer, utilizing an event-driven architecture, message queue, API gateway, and load balancer for efficient communication and distribution of network traffic."
+  },
+  {
+    "name": "Event_Driven_Architecture",
+    "prompt": "Design an event-driven architecture for a real-time analytics system with producers, event bus, consumers, and data processing pipelines.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram illustrates a real-time analytics system architecture with event producers, an event bus, data processing pipelines, a database, a UI, and an API, utilizing event-driven architecture, layered architecture, and microservices patterns for efficient and scalable processing and visualization of streaming data."
+  },
+  {
+    "name": "API_Gateway_Pattern",
+    "prompt": "Create a software architecture diagram showing API Gateway pattern with authentication, rate limiting, and service routing.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram represents a software architecture for an API Gateway pattern, featuring a frontend, API Gateway, user and product services, a database, Redis for caching and rate limiting, and Kafka for event-driven architecture, with connections for API calls, service routing, database queries, rate limiting, and event flows."
+  },
+  {
+    "name": "CQRS_Architecture",
+    "prompt": "Design a software architecture following the CQRS (Command Query Responsibility Segregation) pattern with separate read and write models.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram represents a software architecture for a system utilizing the CQRS pattern, with separate read and write models, including frontend, backend services, databases, a message queue, cache, and security components, using various technologies and protocols for communication and data management."
+  },
+  {
+    "name": "Serverless_Architecture",
+    "prompt": "Create a serverless architecture diagram for a photo processing application with cloud functions, object storage, and managed database.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram represents a serverless architecture for a photo processing application, featuring cloud functions for photo resizing and processing, object storage for photos, a managed database for metadata, an API gateway for request routing, and an authentication service for secure frontend access, organized into five layers: frontend, backend, data, infrastructure, and security."
+  },
+  {
+    "name": "Message_Queue_Architecture",
+    "prompt": "Design a system architecture with message queues for an order processing system handling high volume of transactions.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram represents a software architecture for a high-volume order processing system with a frontend, client library, API gateway, order, payment, and inventory services, a message queue for asynchronous communication, and a database for storing data, organized into clusters for frontend, backend, data, and infrastructure components, using HTTP, AMQP, and SQL protocols, and with distinct visual styles for different component types."
+  }
+]

@@ -1,0 +1,208 @@
+{
+  "type": "software_architecture",
+  "title": "Real-time Streaming Data Pipeline Architecture",
+  "nodes": [
+    {
+      "id": "ingestion",
+      "label": "IoT Ingestion",
+      "type": "ingestion",
+      "description": "Ingests IoT sensor data via MQTT and Kafka",
+      "technology": "Apache Kafka, Eclipse Paho (MQTT)"
+    },
+    {
+      "id": "kafka-connect",
+      "label": "Kafka Connect",
+      "type": "integration",
+      "description": "Integrates IoT data into Kafka",
+      "technology": "Apache Kafka Connect"
+    },
+    {
+      "id": "kafka-streams",
+      "label": "Kafka Streams",
+      "type": "stream_processing",
+      "description": "Performs real-time data processing and transformation",
+      "technology": "Apache Kafka Streams"
+    },
+    {
+      "id": "druid",
+      "label": "Druid",
+      "type": "analytics",
+      "description": "Real-time analytics and indexing",
+      "technology": "Druid"
+    },
+    {
+      "id": "postgres",
+      "label": "PostgreSQL",
+      "type": "database",
+      "description": "Long-term data storage",
+      "technology": "PostgreSQL"
+    },
+    {
+      "id": "influxdb",
+      "label": "InfluxDB",
+      "type": "timeseries_database",
+      "description": "Time-series data storage",
+      "technology": "InfluxDB"
+    },
+    {
+      "id": "grafana",
+      "label": "Grafana",
+      "type": "visualization",
+      "description": "Data visualization and monitoring",
+      "technology": "Grafana"
+    },
+    {
+      "id": "kibana",
+      "label": "Kibana",
+      "type": "visualization",
+      "description": "Data visualization and monitoring",
+      "technology": "Kibana"
+    },
+    {
+      "id": "elasticsearch",
+      "label": "Elasticsearch",
+      "type": "search_engine",
+      "description": "Search and indexing",
+      "technology": "Elasticsearch"
+    }
+  ],
+  "connections": [
+    {
+      "from": "ingestion",
+      "to": "kafka",
+      "label": "IoT sensor data",
+      "type": "data",
+      "protocol": "MQTT"
+    },
+    {
+      "from": "kafka",
+      "to": "kafka-streams",
+      "label": "Data stream",
+      "type": "data",
+      "protocol": "Kafka"
+    },
+    {
+      "from": "kafka-streams",
+      "to": "druid",
+      "label": "Real-time data",
+      "type": "data",
+      "protocol": "Kafka"
+    },
+    {
+      "from": "kafka-streams",
+      "to": "influxdb",
+      "label": "Time-series data",
+      "type": "data",
+      "protocol": "Kafka"
+    },
+    {
+      "from": "kafka-streams",
+      "to": "postgres",
+      "label": "Data for storage",
+      "type": "data",
+      "protocol": "Kafka"
+    },
+    {
+      "from": "druid",
+      "to": "grafana",
+      "label": "Real-time analytics",
+      "type": "data",
+      "protocol": "REST"
+    },
+    {
+      "from": "influxdb",
+      "to": "grafana",
+      "label": "Time-series data",
+      "type": "data",
+      "protocol": "InfluxDB Line Protocol"
+    },
+    {
+      "from": "postgres",
+      "to": "grafana",
+      "label": "Stored data",
+      "type": "data",
+      "protocol": "PostgreSQL"
+    },
+    {
+      "from": "elasticsearch",
+      "to": "kibana",
+      "label": "Indexed data",
+      "type": "data",
+      "protocol": "Elasticsearch"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "ingestion",
+      "label": "Ingestion",
+      "nodes": ["ingestion", "kafka-connect"]
+    },
+    {
+      "id": "streaming",
+      "label": "Streaming",
+      "nodes": ["kafka", "kafka-streams"]
+    },
+    {
+      "id": "analytics",
+      "label": "Analytics",
+      "nodes": ["druid", "influxdb"]
+    },
+    {
+      "id": "visualization",
+      "label": "Visualization",
+      "nodes": ["grafana", "kibana"]
+    },
+    {
+      "id": "storage",
+      "label": "Storage",
+      "nodes": ["postgres"]
+    },
+    {
+      "id": "search",
+      "label": "Search",
+      "nodes": ["elasticsearch"]
+    }
+  ],
+  "styles": {
+    "ingestion": {
+      "color": "#00B8D9",
+      "shape": "database",
+      "border": "dashed"
+    },
+    "integration": {
+      "color": "#FFC107",
+      "shape": "cloud",
+      "border": "dashed"
+    },
+    "stream_processing": {
+      "color": "#9C27B0",
+      "shape": "ellipse",
+      "border": "solid"
+    },
+    "analytics": {
+      "color": "#2196F3",
+      "shape": "analytics",
+      "border": "solid"
+    },
+    "database": {
+      "color": "#4CAF50",
+      "shape": "database",
+      "border": "solid"
+    },
+    "timeseries_database": {
+      "color": "#009688",
+      "shape": "database",
+      "border": "solid"
+    },
+    "visualization": {
+      "color": "#3F51B5",
+      "shape": "monitor",
+      "border": "solid"
+    },
+    "search_engine": {
+      "color": "#607D8B",
+      "shape": "database",
+      "border": "solid"
+    }
+  }
+}

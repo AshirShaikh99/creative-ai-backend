@@ -1,0 +1,52 @@
+erDiagram
+    SHELL_APP {
+        string id
+        string name
+    }
+
+    FRONTEND_MODULE1 {
+        string id
+        string name
+        string version
+    }
+
+    FRONTEND_MODULE2 {
+        string id
+        string name
+        string version
+    }
+
+    SHARED_LIBRARY1 {
+        string id
+        string name
+        string version
+    }
+
+    SHARED_LIBRARY2 {
+        string id
+        string name
+        string version
+    }
+
+    BACKEND_SERVICE1 {
+        string id
+        string name
+        string endpoint
+    }
+
+    BACKEND_SERVICE2 {
+        string id
+        string name
+        string endpoint
+    }
+
+    SHELL_APP ||--o{ FRONTEND_MODULE1 : contains
+    SHELL_APP ||--o{ FRONTEND_MODULE2 : contains
+    FRONTEND_MODULE1 ||--|{ SHARED_LIBRARY1 : uses
+    FRONTEND_MODULE1 ||--|{ SHARED_LIBRARY2 : uses
+    FRONTEND_MODULE2 ||--|{ SHARED_LIBRARY1 : uses
+    FRONTEND_MODULE2 ||--|{ SHARED_LIBRARY2 : uses
+    FRONTEND_MODULE1 ||--o{ BACKEND_SERVICE1 : communicates
+    FRONTEND_MODULE1 ||--o{ BACKEND_SERVICE2 : communicates
+    FRONTEND_MODULE2 ||--o{ BACKEND_SERVICE1 : communicates
+    FRONTEND_MODULE2 ||--o{ BACKEND_SERVICE2 : communicates

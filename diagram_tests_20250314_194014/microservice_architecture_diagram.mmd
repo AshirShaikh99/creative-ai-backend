@@ -1,0 +1,289 @@
+{
+  "type": "software_architecture",
+  "title": "Microservice-based E-commerce Platform Architecture",
+  "nodes": [
+    {
+      "id": "ui",
+      "label": "User Interface",
+      "type": "frontend",
+      "description": "Handles user interactions and displays information",
+      "technology": "React"
+    },
+    {
+      "id": "user-service",
+      "label": "User Service",
+      "type": "microservice",
+      "description": "Manages user authentication, registration, and profile information",
+      "technology": "Node.js"
+    },
+    {
+      "id": "product-catalog",
+      "label": "Product Catalog",
+      "type": "microservice",
+      "description": "Handles product information, categorization, and search",
+      "technology": "Java"
+    },
+    {
+      "id": "order-management",
+      "label": "Order Management",
+      "type": "microservice",
+      "description": "Processes orders, tracks inventory, and handles shipping",
+      "technology": "Go"
+    },
+    {
+      "id": "payment-processing",
+      "label": "Payment Processing",
+      "type": "microservice",
+      "description": "Manages payment gateway integrations and transaction processing",
+      "technology": "Python"
+    },
+    {
+      "id": "db-users",
+      "label": "User Database",
+      "type": "database",
+      "description": "Stores user authentication, registration, and profile information",
+      "technology": "PostgreSQL"
+    },
+    {
+      "id": "db-products",
+      "label": "Product Database",
+      "type": "database",
+      "description": "Stores product information, categorization, and inventory",
+      "technology": "MongoDB"
+    },
+    {
+      "id": "db-orders",
+      "label": "Order Database",
+      "type": "database",
+      "description": "Stores order, shipment, and payment information",
+      "technology": "Cassandra"
+    },
+    {
+      "id": "message-queue",
+      "label": "Message Queue",
+      "type": "infrastructure",
+      "description": "Handles event-driven communication between microservices",
+      "technology": "RabbitMQ"
+    },
+    {
+      "id": "api-gateway",
+      "label": "API Gateway",
+      "type": "infrastructure",
+      "description": "Exposes a unified API for the frontend to interact with microservices",
+      "technology": "Kong"
+    },
+    {
+      "id": "load-balancer",
+      "label": "Load Balancer",
+      "type": "infrastructure",
+      "description": "Distributes network traffic across multiple instances of microservices",
+      "technology": "HAProxy"
+    }
+  ],
+  "connections": [
+    {
+      "from": "ui",
+      "to": "api-gateway",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "api-gateway",
+      "to": "user-service",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "api-gateway",
+      "to": "product-catalog",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "api-gateway",
+      "to": "order-management",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "api-gateway",
+      "to": "payment-processing",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "user-service",
+      "to": "db-users",
+      "label": "Database Queries",
+      "type": "database",
+      "protocol": "PostgreSQL"
+    },
+    {
+      "from": "product-catalog",
+      "to": "db-products",
+      "label": "Database Queries",
+      "type": "database",
+      "protocol": "MongoDB"
+    },
+    {
+      "from": "order-management",
+      "to": "db-orders",
+      "label": "Database Queries",
+      "type": "database",
+      "protocol": "Cassandra"
+    },
+    {
+      "from": "user-service",
+      "to": "message-queue",
+      "label": "Event Flows",
+      "type": "event",
+      "protocol": "AMQP"
+    },
+    {
+      "from": "product-catalog",
+      "to": "message-queue",
+      "label": "Event Flows",
+      "type": "event",
+      "protocol": "AMQP"
+    },
+    {
+      "from": "order-management",
+      "to": "message-queue",
+      "label": "Event Flows",
+      "type": "event",
+      "protocol": "AMQP"
+    },
+    {
+      "from": "payment-processing",
+      "to": "message-queue",
+      "label": "Event Flows",
+      "type": "event",
+      "protocol": "AMQP"
+    },
+    {
+      "from": "load-balancer",
+      "to": "user-service",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "load-balancer",
+      "to": "product-catalog",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "load-balancer",
+      "to": "order-management",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "load-balancer",
+      "to": "payment-processing",
+      "label": "API Calls",
+      "type": "api",
+      "protocol": "HTTP"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "nodes": ["ui"]
+    },
+    {
+      "id": "backend",
+      "label": "Backend",
+      "nodes": [
+        "user-service",
+        "product-catalog",
+        "order-management",
+        "payment-processing"
+      ]
+    },
+    {
+      "id": "data",
+      "label": "Data",
+      "nodes": [
+        "db-users",
+        "db-products",
+        "db-orders"
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure",
+      "nodes": [
+        "message-queue",
+        "api-gateway",
+        "load-balancer"
+      ]
+    }
+  ],
+  "styles": {
+    "ui": {
+      "color": "#3F51B5",
+      "shape": "ellipse",
+      "border": "solid"
+    },
+    "user-service": {
+      "color": "#4CAF50",
+      "shape": "rect",
+      "border": "solid"
+    },
+    "product-catalog": {
+      "color": "#2196F3",
+      "shape": "rect",
+      "border": "solid"
+    },
+    "order-management": {
+      "color": "#F44336",
+      "shape": "rect",
+      "border": "solid"
+    },
+    "payment-processing": {
+      "color": "#9C27B0",
+      "shape": "rect",
+      "border": "solid"
+    },
+    "db-users": {
+      "color": "#9E9E9E",
+      "shape": "cylinder",
+      "border": "solid"
+    },
+    "db-products": {
+      "color": "#9E9E9E",
+      "shape": "cylinder",
+      "border": "solid"
+    },
+    "db-orders": {
+      "color": "#9E9E9E",
+      "shape": "cylinder",
+      "border": "solid"
+    },
+    "message-queue": {
+      "color": "#607D8B",
+      "shape": "cloud",
+      "border": "dotted"
+    },
+    "api-gateway": {
+      "color": "#607D8B",
+      "shape": "cloud",
+      "border": "dotted"
+    },
+    "load-balancer": {
+      "color": "#607D8B",
+      "shape": "cloud",
+      "border": "dotted"
+    }
+  }
+}

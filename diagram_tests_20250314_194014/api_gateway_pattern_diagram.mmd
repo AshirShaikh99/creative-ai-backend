@@ -1,0 +1,127 @@
+{
+  "type": "software_architecture",
+  "title": "API Gateway Pattern",
+  "nodes": [
+    {
+      "id": "api_gateway",
+      "label": "API Gateway",
+      "type": "backend",
+      "description": "Handles authentication, rate limiting, and service routing",
+      "technology": "ExpressJS/Nginx/Kong"
+    },
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "type": "frontend",
+      "description": "Web application or mobile app",
+      "technology": "React/Angular/Ionic"
+    },
+    {
+      "id": "user_service",
+      "label": "User Service",
+      "type": "microservice",
+      "description": "Manages user authentication and authorization",
+      "technology": "NodeJS/Python/Go"
+    },
+    {
+      "id": "product_service",
+      "label": "Product Service",
+      "type": "microservice",
+      "description": "Handles product data and business logic",
+      "technology": "NodeJS/Python/Go"
+    },
+    {
+      "id": "database",
+      "label": "Database",
+      "type": "database",
+      "description": "Stores user, product, and order data",
+      "technology": "PostgreSQL/MySQL/MongoDB"
+    },
+    {
+      "id": "redis",
+      "label": "Redis",
+      "type": "infrastructure",
+      "description": "Caching and rate limiting",
+      "technology": "Redis"
+    },
+    {
+      "id": "kafka",
+      "label": "Kafka",
+      "type": "infrastructure",
+      "description": "Event-driven architecture",
+      "technology": "Kafka"
+    }
+  ],
+  "connections": [
+    {
+      "from": "frontend",
+      "to": "api_gateway",
+      "label": "API calls",
+      "type": "api_call",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "api_gateway",
+      "to": "user_service",
+      "label": "Service routing",
+      "type": "service_routing",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "api_gateway",
+      "to": "product_service",
+      "label": "Service routing",
+      "type": "service_routing",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "user_service",
+      "to": "database",
+      "label": "Database queries",
+      "type": "database_query",
+      "protocol": "PostgreSQL"
+    },
+    {
+      "from": "product_service",
+      "to": "database",
+      "label": "Database queries",
+      "type": "database_query",
+      "protocol": "PostgreSQL"
+    },
+    {
+      "from": "api_gateway",
+      "to": "redis",
+      "label": "Rate limiting",
+      "type": "rate_limiting",
+      "protocol": "Redis"
+    },
+    {
+      "from": "user_service",
+      "to": "kafka",
+      "label": "Event flows",
+      "type": "event_flow",
+      "protocol": "Kafka"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "backend",
+      "label": "Backend",
+      "nodes": ["api_gateway", "user_service", "product_service", "database", "redis", "kafka"]
+    },
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "nodes": ["frontend"]
+    }
+  ],
+  "styles": {
+    "api_gateway": {
+      "color": "#008CBA",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "frontend": {
+      "color": "#3F51B5",
+      "shape": "rectangle",
+      "border":

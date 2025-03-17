@@ -1,0 +1,140 @@
+{
+    "type": "software_architecture",
+    "title": "Photo Processing Serverless Architecture",
+    "nodes": [
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "type": "frontend",
+            "description": "Web interface for users to upload photos",
+            "technology": "HTML/CSS/JavaScript"
+        },
+        {
+            "id": "api-gw",
+            "label": "API Gateway",
+            "type": "infrastructure",
+            "description": "Receives requests from the frontend, routes them to the appropriate cloud functions",
+            "technology": "API Gateway"
+        },
+        {
+            "id": "object-storage",
+            "label": "Object Storage",
+            "type": "data",
+            "description": "Stores original and processed photos",
+            "technology": "S3/GCS/etc."
+        },
+        {
+            "id": "photo-resize",
+            "label": "Photo Resize Function",
+            "type": "backend",
+            "description": "Resizes uploaded photos and stores them in object storage",
+            "technology": "Cloud Function"
+        },
+        {
+            "id": "photo-process",
+            "label": "Photo Process Function",
+            "type": "backend",
+            "description": "Applies filters, effects or other transformations on photos before storing them in object storage",
+            "technology": "Cloud Function"
+        },
+        {
+            "id": "db",
+            "label": "Managed Database",
+            "type": "data",
+            "description": "Stores metadata for photos, users, and transformations",
+            "technology": "Cloud SQL/DynamoDB/etc."
+        },
+        {
+            "id": "auth",
+            "label": "Authentication Service",
+            "type": "security",
+            "description": "Authentication and authorization for the frontend",
+            "technology": "OAuth/JWT/etc."
+        }
+    ],
+    "connections": [
+        {
+            "from": "frontend",
+            "to": "api-gw",
+            "label": "API Calls",
+            "type": "http",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api-gw",
+            "to": "auth",
+            "label": "Authentication Flow",
+            "type": "auth",
+            "protocol": "OAuth/JWT/etc."
+        },
+        {
+            "from": "api-gw",
+            "to": "photo-resize",
+            "label": "API Calls",
+            "type": "http",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api-gw",
+            "to": "photo-process",
+            "label": "API Calls",
+            "type": "http",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "photo-resize",
+            "to": "object-storage",
+            "label": "Data Transformation",
+            "type": "data",
+            "protocol": "PUT"
+        },
+        {
+            "from": "photo-process",
+            "to": "object-storage",
+            "label": "Data Transformation",
+            "type": "data",
+            "protocol": "PUT"
+        },
+        {
+            "from": "api-gw",
+            "to": "db",
+            "label": "Database Queries",
+            "type": "database",
+            "protocol": "SQL"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "nodes": ["frontend"]
+        },
+        {
+            "id": "backend",
+            "label": "Backend",
+            "nodes": ["photo-resize", "photo-process"]
+        },
+        {
+            "id": "data",
+            "label": "Data",
+            "nodes": ["object-storage", "db"]
+        },
+        {
+            "id": "infrastructure",
+            "label": "Infrastructure",
+            "nodes": ["api-gw"]
+        },
+        {
+            "id": "security",
+            "label": "Security",
+            "nodes": ["auth"]
+        }
+    ],
+    "styles": {
+        "frontend": {"color": "#4caf50", "shape": "ellipse", "border": "dashed"},
+        "backend": {"color": "#00bcd4", "shape": "rectangle", "border": "solid"},
+        "data": {"color": "#ffeb3b", "shape": "cylinder", "border": "double"},
+        "infrastructure": {"color": "#9e9e9e", "shape": "diamond", "border": "dotted"},
+        "security": {"color": "#f44336", "shape": "pentagon", "border": "dotdash"}
+    }
+}

@@ -1,0 +1,440 @@
+{
+  "diagram_type": "software_architecture",
+  "syntax": "flowchart TD\n    title[\"API Gateway Pattern\"]\n    subgraph backend[\"Backend\"]\n        api_gateway\n        authentication_service\n        rate_limiter\n        service1\n        service2\n    end\n    subgraph data[\"Data\"]\n        database1\n        database2\n    end\n    api_gateway[\"API Gateway (Nginx, Kong, or AWS API Gateway)\"]\n    authentication_service[\"Authentication Service (OAuth2 or JWT)\"]\n    rate_limiter[\"Rate Limiter (Nginx, Redis, or AWS WAF)\"]\n    service1[\"Service 1 (Node.js or Python)\"]\n    service2[\"Service 2 (Node.js or Python)\"]\n    database1[\"Database 1 (PostgreSQL or MongoDB)\"]\n    database2[\"Database 2 (PostgreSQL or MongoDB)\"]\n    api_gateway --> authentication_service\n    api_gateway --> rate_limiter\n    api_gateway --> service1\n    api_gateway --> service2\n    service1 --> database1\n    service2 --> database2\n    style api_gateway fill:#008CBA,stroke:solid\n    style authentication_service fill:#F4D03F,stroke:dashed\n    style rate_limiter fill:#FF4B4B,stroke:dotted\n    style service1 fill:#C0C0C0,stroke:solid\n    style service2 fill:#C0C0C0,stroke:solid\n    style database1 fill:#70DB93,stroke:solid\n    style database2 fill:#70DB93,stroke:solid\n    style title fill:#FFFFFF,stroke:#FFFFFF,color:#000000,font-size:16px\n",
+  "description": "This diagram illustrates the API Gateway pattern, which involves an API Gateway that routes requests to various backend services, an authentication service, a rate limiter, and two databases, with each component having a specific technology or language associated with it.",
+  "metadata": {
+    "raw_data": {
+      "type": "software_architecture",
+      "title": "API Gateway Pattern",
+      "nodes": [
+        {
+          "id": "api_gateway",
+          "label": "API Gateway",
+          "type": "infrastructure",
+          "description": "Handles authentication, rate limiting, and service routing",
+          "technology": "Nginx, Kong, or AWS API Gateway"
+        },
+        {
+          "id": "authentication_service",
+          "label": "Authentication Service",
+          "type": "backend",
+          "description": "Validates user credentials and issues tokens",
+          "technology": "OAuth2 or JWT"
+        },
+        {
+          "id": "rate_limiter",
+          "label": "Rate Limiter",
+          "type": "infrastructure",
+          "description": "Restricts the number of requests per client",
+          "technology": "Nginx, Redis, or AWS WAF"
+        },
+        {
+          "id": "service1",
+          "label": "Service 1",
+          "type": "backend",
+          "description": "Provides functionality for clients",
+          "technology": "Node.js or Python"
+        },
+        {
+          "id": "service2",
+          "label": "Service 2",
+          "type": "backend",
+          "description": "Provides functionality for clients",
+          "technology": "Node.js or Python"
+        },
+        {
+          "id": "database1",
+          "label": "Database 1",
+          "type": "data",
+          "description": "Stores data for Service 1",
+          "technology": "PostgreSQL or MongoDB"
+        },
+        {
+          "id": "database2",
+          "label": "Database 2",
+          "type": "data",
+          "description": "Stores data for Service 2",
+          "technology": "PostgreSQL or MongoDB"
+        }
+      ],
+      "connections": [
+        {
+          "from": "api_gateway",
+          "to": "authentication_service",
+          "label": "Auth Request",
+          "type": "api_call",
+          "protocol": "HTTP"
+        },
+        {
+          "from": "api_gateway",
+          "to": "rate_limiter",
+          "label": "Rate Limit",
+          "type": "api_call",
+          "protocol": "HTTP"
+        },
+        {
+          "from": "api_gateway",
+          "to": "service1",
+          "label": "Service 1 Request",
+          "type": "api_call",
+          "protocol": "HTTP"
+        },
+        {
+          "from": "api_gateway",
+          "to": "service2",
+          "label": "Service 2 Request",
+          "type": "api_call",
+          "protocol": "HTTP"
+        },
+        {
+          "from": "service1",
+          "to": "database1",
+          "label": "Query",
+          "type": "database_query",
+          "protocol": "SQL"
+        },
+        {
+          "from": "service2",
+          "to": "database2",
+          "label": "Query",
+          "type": "database_query",
+          "protocol": "SQL"
+        }
+      ],
+      "clusters": [
+        {
+          "id": "backend",
+          "label": "Backend",
+          "nodes": [
+            "api_gateway",
+            "authentication_service",
+            "rate_limiter",
+            "service1",
+            "service2"
+          ]
+        },
+        {
+          "id": "data",
+          "label": "Data",
+          "nodes": [
+            "database1",
+            "database2"
+          ]
+        }
+      ],
+      "styles": {
+        "api_gateway": {
+          "color": "#008CBA",
+          "shape": "rectangle",
+          "border": "solid"
+        },
+        "authentication_service": {
+          "color": "#F4D03F",
+          "shape": "circle",
+          "border": "dashed"
+        },
+        "rate_limiter": {
+          "color": "#FF4B4B",
+          "shape": "diamond",
+          "border": "dotted"
+        },
+        "service1": {
+          "color": "#C0C0C0",
+          "shape": "rectangle",
+          "border": "solid"
+        },
+        "service2": {
+          "color": "#C0C0C0",
+          "shape": "rectangle",
+          "border": "solid"
+        },
+        "database1": {
+          "color": "#70DB93",
+          "shape": "cylinder",
+          "border": "solid"
+        },
+        "database2": {
+          "color": "#70DB93",
+          "shape": "cylinder",
+          "border": "solid"
+        }
+      }
+    },
+    "options": {},
+    "model": "mixtral-8x7b-32768",
+    "tokens": 1879
+  },
+  "raw_structure": {
+    "type": "software_architecture",
+    "title": "API Gateway Pattern",
+    "nodes": [
+      {
+        "id": "api_gateway",
+        "label": "API Gateway",
+        "type": "infrastructure",
+        "description": "Handles authentication, rate limiting, and service routing",
+        "technology": "Nginx, Kong, or AWS API Gateway"
+      },
+      {
+        "id": "authentication_service",
+        "label": "Authentication Service",
+        "type": "backend",
+        "description": "Validates user credentials and issues tokens",
+        "technology": "OAuth2 or JWT"
+      },
+      {
+        "id": "rate_limiter",
+        "label": "Rate Limiter",
+        "type": "infrastructure",
+        "description": "Restricts the number of requests per client",
+        "technology": "Nginx, Redis, or AWS WAF"
+      },
+      {
+        "id": "service1",
+        "label": "Service 1",
+        "type": "backend",
+        "description": "Provides functionality for clients",
+        "technology": "Node.js or Python"
+      },
+      {
+        "id": "service2",
+        "label": "Service 2",
+        "type": "backend",
+        "description": "Provides functionality for clients",
+        "technology": "Node.js or Python"
+      },
+      {
+        "id": "database1",
+        "label": "Database 1",
+        "type": "data",
+        "description": "Stores data for Service 1",
+        "technology": "PostgreSQL or MongoDB"
+      },
+      {
+        "id": "database2",
+        "label": "Database 2",
+        "type": "data",
+        "description": "Stores data for Service 2",
+        "technology": "PostgreSQL or MongoDB"
+      }
+    ],
+    "connections": [
+      {
+        "from": "api_gateway",
+        "to": "authentication_service",
+        "label": "Auth Request",
+        "type": "api_call",
+        "protocol": "HTTP"
+      },
+      {
+        "from": "api_gateway",
+        "to": "rate_limiter",
+        "label": "Rate Limit",
+        "type": "api_call",
+        "protocol": "HTTP"
+      },
+      {
+        "from": "api_gateway",
+        "to": "service1",
+        "label": "Service 1 Request",
+        "type": "api_call",
+        "protocol": "HTTP"
+      },
+      {
+        "from": "api_gateway",
+        "to": "service2",
+        "label": "Service 2 Request",
+        "type": "api_call",
+        "protocol": "HTTP"
+      },
+      {
+        "from": "service1",
+        "to": "database1",
+        "label": "Query",
+        "type": "database_query",
+        "protocol": "SQL"
+      },
+      {
+        "from": "service2",
+        "to": "database2",
+        "label": "Query",
+        "type": "database_query",
+        "protocol": "SQL"
+      }
+    ],
+    "clusters": [
+      {
+        "id": "backend",
+        "label": "Backend",
+        "nodes": [
+          "api_gateway",
+          "authentication_service",
+          "rate_limiter",
+          "service1",
+          "service2"
+        ]
+      },
+      {
+        "id": "data",
+        "label": "Data",
+        "nodes": [
+          "database1",
+          "database2"
+        ]
+      }
+    ],
+    "styles": {
+      "api_gateway": {
+        "color": "#008CBA",
+        "shape": "rectangle",
+        "border": "solid"
+      },
+      "authentication_service": {
+        "color": "#F4D03F",
+        "shape": "circle",
+        "border": "dashed"
+      },
+      "rate_limiter": {
+        "color": "#FF4B4B",
+        "shape": "diamond",
+        "border": "dotted"
+      },
+      "service1": {
+        "color": "#C0C0C0",
+        "shape": "rectangle",
+        "border": "solid"
+      },
+      "service2": {
+        "color": "#C0C0C0",
+        "shape": "rectangle",
+        "border": "solid"
+      },
+      "database1": {
+        "color": "#70DB93",
+        "shape": "cylinder",
+        "border": "solid"
+      },
+      "database2": {
+        "color": "#70DB93",
+        "shape": "cylinder",
+        "border": "solid"
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "api_gateway",
+      "label": "API Gateway",
+      "type": "infrastructure",
+      "description": "Handles authentication, rate limiting, and service routing",
+      "technology": "Nginx, Kong, or AWS API Gateway"
+    },
+    {
+      "id": "authentication_service",
+      "label": "Authentication Service",
+      "type": "backend",
+      "description": "Validates user credentials and issues tokens",
+      "technology": "OAuth2 or JWT"
+    },
+    {
+      "id": "rate_limiter",
+      "label": "Rate Limiter",
+      "type": "infrastructure",
+      "description": "Restricts the number of requests per client",
+      "technology": "Nginx, Redis, or AWS WAF"
+    },
+    {
+      "id": "service1",
+      "label": "Service 1",
+      "type": "backend",
+      "description": "Provides functionality for clients",
+      "technology": "Node.js or Python"
+    },
+    {
+      "id": "service2",
+      "label": "Service 2",
+      "type": "backend",
+      "description": "Provides functionality for clients",
+      "technology": "Node.js or Python"
+    },
+    {
+      "id": "database1",
+      "label": "Database 1",
+      "type": "data",
+      "description": "Stores data for Service 1",
+      "technology": "PostgreSQL or MongoDB"
+    },
+    {
+      "id": "database2",
+      "label": "Database 2",
+      "type": "data",
+      "description": "Stores data for Service 2",
+      "technology": "PostgreSQL or MongoDB"
+    }
+  ],
+  "connections": [
+    {
+      "from": "api_gateway",
+      "to": "authentication_service",
+      "label": "Auth Request",
+      "type": "api_call",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "api_gateway",
+      "to": "rate_limiter",
+      "label": "Rate Limit",
+      "type": "api_call",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "api_gateway",
+      "to": "service1",
+      "label": "Service 1 Request",
+      "type": "api_call",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "api_gateway",
+      "to": "service2",
+      "label": "Service 2 Request",
+      "type": "api_call",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "service1",
+      "to": "database1",
+      "label": "Query",
+      "type": "database_query",
+      "protocol": "SQL"
+    },
+    {
+      "from": "service2",
+      "to": "database2",
+      "label": "Query",
+      "type": "database_query",
+      "protocol": "SQL"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "backend",
+      "label": "Backend",
+      "nodes": [
+        "api_gateway",
+        "authentication_service",
+        "rate_limiter",
+        "service1",
+        "service2"
+      ]
+    },
+    {
+      "id": "data",
+      "label": "Data",
+      "nodes": [
+        "database1",
+        "database2"
+      ]
+    }
+  ]
+}

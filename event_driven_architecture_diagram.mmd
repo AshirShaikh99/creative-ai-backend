@@ -1,0 +1,72 @@
+flowchart TD
+    title["Event-Driven Architecture for Real-Time Analytics"]
+    
+    subgraph clients["Client Layer"]
+        web_ui>"Web Dashboard"]
+        mobile_ui>"Mobile App"]
+    end
+    
+    subgraph ingestion["Data Ingestion"]
+        api([Service: API Gateway])
+        event_collector[[Event Collector]]
+    end
+    
+    subgraph event_processing["Event Processing Layer"]
+        event_bus[/Message Broker (Kafka)/]
+        stream_processor1[[Stream Processor 1]]
+        stream_processor2[[Stream Processor 2]]
+        enrichment[[Data Enrichment]]
+    end
+    
+    subgraph analytics["Analytics Layer"] 
+        realtime_analytics[[Real-time Analytics]]
+        anomaly_detection[[Anomaly Detection]]
+        dashboard_aggregator[[Dashboard Aggregator]]
+    end
+    
+    subgraph storage["Data Storage"]
+        time_series_db[(Time Series DB)]
+        analytics_db[(Analytics DB)]
+        data_lake[(Data Lake)]
+    end
+    
+    subgraph external["External Systems"]
+        notification_service([Service: Notification])
+        ml_model([Model: Prediction Engine])
+    end
+    
+    % Connections
+    web_ui -->|HTTP| api
+    mobile_ui -->|HTTP| api
+    api ==>|Publishes Events| event_collector
+    event_collector ==>|Produces| event_bus
+    
+    event_bus ==>|Consumes| stream_processor1
+    event_bus ==>|Consumes| stream_processor2
+    stream_processor1 ==>|Processes| enrichment
+    stream_processor2 ==>|Filters| anomaly_detection
+    
+    enrichment ==>|Writes| time_series_db
+    anomaly_detection ==>|Alerts| notification_service
+    anomaly_detection -->|Prediction Request| ml_model
+    ml_model -.->|Prediction Result| anomaly_detection
+    
+    stream_processor1 ==>|Metrics| realtime_analytics
+    realtime_analytics ==>|Aggregated Data| dashboard_aggregator
+    realtime_analytics -->|Stores Results| analytics_db
+    
+    enrichment ==>|Archives| data_lake
+    dashboard_aggregator -->|Retrieves Historical Data| analytics_db
+    dashboard_aggregator -->|Real-time Updates| web_ui
+    
+    % Styling
+    style web_ui fill:#D4F1F9,stroke:#1E90FF
+    style mobile_ui fill:#D4F1F9,stroke:#1E90FF
+    style api fill:#F5F5F5,stroke:#666666
+    style event_bus fill:#FFF2CC,stroke:#D6B656
+    style time_series_db fill:#E1D5E7,stroke:#9673A6
+    style analytics_db fill:#E1D5E7,stroke:#9673A6
+    style data_lake fill:#E1D5E7,stroke:#9673A6
+    style notification_service fill:#F5F5F5,stroke:#666666,stroke-dasharray: 5 5
+    style ml_model fill:#FFE6CC,stroke:#D79B00
+    style title fill:#FFFFFF,stroke:#FFFFFF,color:#000000,font-size:16px 

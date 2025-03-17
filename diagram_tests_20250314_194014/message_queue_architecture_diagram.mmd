@@ -1,0 +1,152 @@
+{
+    "type": "software_architecture",
+    "title": "Order Processing System Architecture",
+    "nodes": [
+        {
+            "id": "ui",
+            "label": "Frontend",
+            "type": "frontend",
+            "description": "User interface for customers to place orders.",
+            "technology": "React"
+        },
+        {
+            "id": "client",
+            "label": "Client Library",
+            "type": "frontend",
+            "description": "Library for communicating with the backend services.",
+            "technology": "JavaScript"
+        },
+        {
+            "id": "api-gateway",
+            "label": "API Gateway",
+            "type": "backend",
+            "description": "Entrypoint for all requests to the backend services.",
+            "technology": "Node.js"
+        },
+        {
+            "id": "order-service",
+            "label": "Order Service",
+            "type": "backend",
+            "description": "Manages orders and communicates with other services via message queues.",
+            "technology": "Java"
+        },
+        {
+            "id": "payment-service",
+            "label": "Payment Service",
+            "type": "backend",
+            "description": "Manages payments and communicates with other services via message queues.",
+            "technology": "Java"
+        },
+        {
+            "id": "inventory-service",
+            "label": "Inventory Service",
+            "type": "backend",
+            "description": "Manages inventory and communicates with other services via message queues.",
+            "technology": "Java"
+        },
+        {
+            "id": "message-queue",
+            "label": "Message Queue",
+            "type": "infrastructure",
+            "description": "Handles asynchronous communication between services.",
+            "technology": "RabbitMQ"
+        },
+        {
+            "id": "db",
+            "label": "Database",
+            "type": "database",
+            "description": "Stores all data for the system.",
+            "technology": "PostgreSQL"
+        }
+    ],
+    "connections": [
+        {
+            "from": "ui",
+            "to": "api-gateway",
+            "label": "API Calls",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "client",
+            "to": "api-gateway",
+            "label": "API Calls",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api-gateway",
+            "to": "order-service",
+            "label": "Message Queue",
+            "type": "message",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "api-gateway",
+            "to": "payment-service",
+            "label": "Message Queue",
+            "type": "message",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "api-gateway",
+            "to": "inventory-service",
+            "label": "Message Queue",
+            "type": "message",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "order-service",
+            "to": "db",
+            "label": "Database Queries",
+            "type": "database",
+            "protocol": "SQL"
+        },
+        {
+            "from": "payment-service",
+            "to": "db",
+            "label": "Database Queries",
+            "type": "database",
+            "protocol": "SQL"
+        },
+        {
+            "from": "inventory-service",
+            "to": "db",
+            "label": "Database Queries",
+            "type": "database",
+            "protocol": "SQL"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "nodes": ["ui", "client"]
+        },
+        {
+            "id": "backend",
+            "label": "Backend",
+            "nodes": ["api-gateway", "order-service", "payment-service", "inventory-service"]
+        },
+        {
+            "id": "data",
+            "label": "Data",
+            "nodes": ["db"]
+        },
+        {
+            "id": "infrastructure",
+            "label": "Infrastructure",
+            "nodes": ["message-queue"]
+        }
+    ],
+    "styles": {
+        "ui": {"color": "#1DA1F2", "shape": "ellipse", "border": "solid"},
+        "client": {"color": "#1DA1F2", "shape": "ellipse", "border": "solid"},
+        "api-gateway": {"color": "#F5A623", "shape": "ellipse", "border": "dashed"},
+        "order-service": {"color": "#F5A623", "shape": "ellipse", "border": "dashed"},
+        "payment-service": {"color": "#F5A623", "shape": "ellipse", "border": "dashed"},
+        "inventory-service": {"color": "#F5A623", "shape": "ellipse", "border": "dashed"},
+        "message-queue": {"color": "#7ACCF2", "shape": "hexagon", "border": "dotted"},
+        "db": {"color": "#51B02D", "shape": "rectangle", "border": "double"}
+    }
+}

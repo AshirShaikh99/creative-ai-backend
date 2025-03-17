@@ -1,0 +1,210 @@
+{
+    "type": "software_architecture",
+    "title": "Order Processing System Architecture",
+    "nodes": [
+        {
+            "id": "ui",
+            "label": "User Interface",
+            "type": "frontend",
+            "description": "Handles user interactions and displays the application's interface",
+            "technology": "React"
+        },
+        {
+            "id": "client-lib",
+            "label": "Client Library",
+            "type": "frontend",
+            "description": "Libraries for integrating with the order processing system",
+            "technology": "JavaScript"
+        },
+        {
+            "id": "api-gateway",
+            "label": "API Gateway",
+            "type": "backend",
+            "description": "Entrypoint to the order processing system, handles authentication and routing",
+            "technology": "Node.js"
+        },
+        {
+            "id": "order-service",
+            "label": "Order Service",
+            "type": "backend",
+            "description": "Manages order data, business logic, and transaction processing",
+            "technology": "Java"
+        },
+        {
+            "id": "payment-service",
+            "label": "Payment Service",
+            "type": "backend",
+            "description": "Integrates with payment gateways and processes payments",
+            "technology": "Go"
+        },
+        {
+            "id": "inventory-service",
+            "label": "Inventory Service",
+            "type": "backend",
+            "description": "Manages product inventory and stock levels",
+            "technology": "Python"
+        },
+        {
+            "id": "mq",
+            "label": "Message Queue",
+            "type": "infrastructure",
+            "description": "Asynchronous message processing and event-driven architecture",
+            "technology": "RabbitMQ"
+        },
+        {
+            "id": "db",
+            "label": "Database",
+            "type": "data",
+            "description": "Stores and manages persistent data for the order processing system",
+            "technology": "PostgreSQL"
+        },
+        {
+            "id": "cache",
+            "label": "Cache",
+            "type": "infrastructure",
+            "description": "Caches frequently accessed data for faster access",
+            "technology": "Redis"
+        }
+    ],
+    "connections": [
+        {
+            "from": "ui",
+            "to": "api-gateway",
+            "label": "API Call",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "client-lib",
+            "to": "api-gateway",
+            "label": "API Call",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api-gateway",
+            "to": "order-service",
+            "label": "API Call",
+            "type": "api",
+            "protocol": "gRPC"
+        },
+        {
+            "from": "order-service",
+            "to": "payment-service",
+            "label": "Event Flow",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "payment-service",
+            "to": "order-service",
+            "label": "Event Flow",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "order-service",
+            "to": "inventory-service",
+            "label": "API Call",
+            "type": "api",
+            "protocol": "gRPC"
+        },
+        {
+            "from": "inventory-service",
+            "to": "mq",
+            "label": "Event Flow",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "mq",
+            "to": "order-service",
+            "label": "Event Flow",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "order-service",
+            "to": "db",
+            "label": "Database Query",
+            "type": "database",
+            "protocol": "SQL"
+        },
+        {
+            "from": "order-service",
+            "to": "cache",
+            "label": "Data Transformation",
+            "type": "cache",
+            "protocol": "Cache Update"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "frontend",
+            "label": "Frontend Layer",
+            "nodes": ["ui", "client-lib"]
+        },
+        {
+            "id": "backend",
+            "label": "Backend Layer",
+            "nodes": ["api-gateway", "order-service", "payment-service", "inventory-service"]
+        },
+        {
+            "id": "data",
+            "label": "Data Layer",
+            "nodes": ["db"]
+        },
+        {
+            "id": "infrastructure",
+            "label": "Infrastructure Layer",
+            "nodes": ["mq", "cache"]
+        }
+    ],
+    "styles": {
+        "ui": {
+            "color": "#1572b6",
+            "shape": "circle",
+            "border": "none"
+        },
+        "client-lib": {
+            "color": "#333333",
+            "shape": "rectangle",
+            "border": "dotted"
+        },
+        "api-gateway": {
+            "color": "#009933",
+            "shape": "diamond",
+            "border": "solid"
+        },
+        "order-service": {
+            "color": "#cc3333",
+            "shape": "rectangle",
+            "border": "dashed"
+        },
+        "payment-service": {
+            "color": "#ffcc00",
+            "shape": "hexagon",
+            "border": "double"
+        },
+        "inventory-service": {
+            "color": "#999933",
+            "shape": "ellipse",
+            "border": "dotted"
+        },
+        "mq": {
+            "color": "#66ccff",
+            "shape": "triangle",
+            "border": "solid"
+        },
+        "db": {
+            "color": "#663399",
+            "shape": "cylinder",
+            "border": "double"
+        },
+        "cache": {
+            "color": "#ff9999",
+            "shape": "parallelogram",
+            "border": "dashed"
+        }
+    }
+}

@@ -1,6 +1,6 @@
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Tuple
 from app.models.model import Message, ChatSession, ChatResponse
-from uuid import UUID
+from uuid import UUID, uuid4
 from ai21 import AI21Client
 from ai21.models.chat import UserMessage, SystemMessage
 from app.config.config import get_settings
@@ -8,6 +8,8 @@ from functools import lru_cache
 import json
 import hashlib
 import logging
+import time
+from datetime import datetime, timedelta
 from app.core.research_engine import research_engine
 
 # Configure logging
@@ -27,7 +29,9 @@ ai21_client = AI21Client(api_key=settings.AI21_API_KEY)
 
 class CreativeAIChatbot:
     def __init__(self):
-        self.sessions: Dict[UUID, ChatSession] = {}
+        self.sessions: Dict[str, Dict[UUID, ChatSession]] = {}  # Map user_id to their sessions
+        self.session_expiry: Dict[UUID, float] = {}  # Track when sessions expire
+        self.SESSION_TIMEOUT = 60 * 60  # Sessions expire after 1 hour of inactivity
 
     async def process_message(
         self,
@@ -39,11 +43,7 @@ class CreativeAIChatbot:
         logger.info(f"Processing message for user: {user_id} (deep_research: {deep_research})")
         
         # Get or create session
-        if session_id and session_id in self.sessions:
-            session = self.sessions[session_id]
-        else:
-            session = ChatSession(user_id=user_id)
-            self.sessions[session.id] = session
+        session = self._get_or_create_session(user_id, session_id)
         
         # Add user message
         session.messages.append(Message(content=message, role="user"))
@@ -69,11 +69,73 @@ class CreativeAIChatbot:
             response = await self._generate_response(message, combined_context, session)
             session.messages.append(Message(content=response, role="assistant"))
             
+            # Update session expiry time
+            self._update_session_expiry(session.id)
+            
             return session
             
         except Exception as e:
             logger.error(f"Error processing message: {str(e)}", exc_info=True)
             raise
+
+    def _get_or_create_session(self, user_id: str, session_id: Optional[UUID] = None) -> ChatSession:
+        """
+        Get an existing session or create a new one for the given user
+        
+        Args:
+            user_id: ID of the user
+            session_id: Optional ID of an existing session
+            
+        Returns:
+            The session
+        """
+        # Create user's session dictionary if it doesn't exist
+        if user_id not in self.sessions:
+            self.sessions[user_id] = {}
+            
+        # Clean expired sessions periodically
+        self._clean_expired_sessions()
+            
+        # If session_id is provided and exists for this user, return it
+        if session_id and session_id in self.sessions[user_id]:
+            logger.info(f"Retrieved existing session {session_id} for user {user_id}")
+            session = self.sessions[user_id][session_id]
+            return session
+            
+        # Otherwise create a new session
+        session = ChatSession(user_id=user_id)
+        self.sessions[user_id][session.id] = session
+        self._update_session_expiry(session.id)
+        logger.info(f"Created new session {session.id} for user {user_id}")
+        
+        return session
+        
+    def _update_session_expiry(self, session_id: UUID) -> None:
+        """Update the expiry time for a session"""
+        self.session_expiry[session_id] = time.time() + self.SESSION_TIMEOUT
+        
+    def _clean_expired_sessions(self) -> None:
+        """Remove expired sessions to prevent memory leaks"""
+        current_time = time.time()
+        expired_sessions = [sid for sid, expiry in self.session_expiry.items() if expiry < current_time]
+        
+        if expired_sessions:
+            logger.info(f"Cleaning {len(expired_sessions)} expired sessions")
+            
+            # Remove expired sessions from each user's sessions dict
+            for user_id, sessions in list(self.sessions.items()):
+                for session_id in list(sessions.keys()):
+                    if session_id in expired_sessions:
+                        del sessions[session_id]
+                
+                # Remove user entry if they have no sessions
+                if not sessions:
+                    del self.sessions[user_id]
+            
+            # Remove from expiry tracking
+            for session_id in expired_sessions:
+                if session_id in self.session_expiry:
+                    del self.session_expiry[session_id]
 
     @lru_cache(maxsize=1000)
     def _cache_llm_response(self, message_hash: str, context_hash: str) -> str:
@@ -85,7 +147,11 @@ class CreativeAIChatbot:
             # Add debug logging for research findings
             logger.debug(f"Research findings: {bool(combined_context.get('research_findings'))}")
             
-            # Check if we have research findings and they're from the research engine
+            # Format context based on whether we have research findings
+            context = ""
+            messages = [SystemMessage(content=self._get_system_prompt())]
+            
+            # Check if we have research findings and add them to context
             if (combined_context.get("research_findings") and 
                 isinstance(combined_context["research_findings"], list) and 
                 len(combined_context["research_findings"]) > 0):
@@ -100,32 +166,20 @@ class CreativeAIChatbot:
                 if research_finding.get('details'):
                     research_context += "Key Findings:\n" + "\n".join(f"- {detail}" for detail in research_finding['details'])
                 
-                # Combine with other context but prioritize research findings
+                # Set full context
                 context = research_context + "\n\n" + self._format_research_context(combined_context)
-                
-                messages = [
-                    SystemMessage(content=self._get_system_prompt()),
-                    SystemMessage(content=f"Here is relevant research information:\n{context}"),
-                    UserMessage(content=message)
-                ]
-                
-                # Use AI21 Client for chat completion
-                response = ai21_client.chat.completions.create(
-                    model="jamba-1.6-large",
-                    messages=messages,
-                    temperature=0.9,
-                    max_tokens=500,
-                    top_p=0.95,
-                    presence_penalty=0.6,
-                    frequency_penalty=0.5,
-                    response_format={"type": "text"},
-                    stop=None,
-                )
-                
-                return response.choices[0].message.content
-
-            # Otherwise, proceed with normal response generation without context
-            context = self._format_research_context(combined_context)
+            else:
+                # Use standard research context format if no specific findings
+                context = self._format_research_context(combined_context)
+            
+            # Add context if we have any
+            if context:
+                messages.append(SystemMessage(content=f"Here is relevant research information:\n{context}"))
+            
+            # Add user message
+            messages.append(UserMessage(content=message))
+            
+            # Calculate hashes for caching
             message_hash = hashlib.sha256(message.encode()).hexdigest()
             context_hash = hashlib.sha256(context.encode()).hexdigest()
             
@@ -137,21 +191,17 @@ class CreativeAIChatbot:
             except Exception as e:
                 logger.warning(f"Cache retrieval failed: {str(e)}")
             
-            # If no research findings, just use the message directly
-            messages = [
-                SystemMessage(content=self._get_system_prompt()),
-                UserMessage(content=message)
-            ]
-            
-            # Add research context if available
-            if context:
-                messages.insert(1, SystemMessage(content=f"Here is relevant research information:\n{context}"))
-            
-            # Use AI21 Client for chat completion
+            # Use AI21 Client for chat completion with a single model
             response = ai21_client.chat.completions.create(
-                model="jamba-1.5-mini",
+                model="jamba-large-1.6",
                 messages=messages,
                 temperature=0.8,
+                max_tokens=500,
+                top_p=0.95,
+                presence_penalty=0.6,
+                frequency_penalty=0.5,
+                response_format={"type": "text"},
+                stop=None,
             )
             
             response_text = response.choices[0].message.content

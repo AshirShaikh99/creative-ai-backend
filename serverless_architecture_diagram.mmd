@@ -1,0 +1,94 @@
+flowchart TD
+    title["Serverless Photo Processing Application"]
+    
+    subgraph client["Client Layer"]
+        web_app>"Web Application"]
+        mobile_app>"Mobile App"]
+    end
+    
+    subgraph api_layer["API Layer"]
+        api_gateway([Service: API Gateway])
+        auth{Authentication}
+    end
+    
+    subgraph compute["Serverless Compute"]
+        upload_handler[[Upload Handler]]
+        image_processor[[Image Processor]]
+        thumbnail_generator[[Thumbnail Generator]]
+        metadata_extractor[[Metadata Extractor]]
+        notification_sender[[Notification Sender]]
+    end
+    
+    subgraph storage["Storage Layer"]
+        object_store[(Object Storage)]
+        metadata_db[(Metadata DB)]
+        user_db[(User Database)]
+    end
+    
+    subgraph messaging["Messaging Layer"]
+        event_bus[/Event Bus/]
+    end
+    
+    subgraph cdn["Content Delivery"]
+        cdn_service([Service: CDN])
+    end
+    
+    subgraph monitoring["Monitoring & Logging"]
+        monitoring_service[[Monitoring]]
+        logs_analyzer[[Logs Analyzer]]
+    end
+    
+    % Connections - Client to API
+    web_app -->|HTTPS| api_gateway
+    mobile_app -->|HTTPS| api_gateway
+    api_gateway -->|Validate| auth
+    auth -->|JWT| user_db
+    
+    % Upload and Processing Flow
+    api_gateway ==>|Trigger| upload_handler
+    upload_handler -->|Store Original| object_store
+    upload_handler ==>|New Upload Event| event_bus
+    
+    event_bus ==>|Process Image| image_processor
+    event_bus ==>|Generate Thumbnail| thumbnail_generator
+    event_bus ==>|Extract Metadata| metadata_extractor
+    
+    image_processor -->|Store Processed| object_store
+    thumbnail_generator -->|Store Thumbnail| object_store
+    metadata_extractor -->|Store Metadata| metadata_db
+    
+    % Notifications
+    metadata_extractor ==>|Processing Complete| event_bus
+    event_bus ==>|Send Notification| notification_sender
+    
+    % Delivery
+    object_store -->|Serve Content| cdn_service
+    cdn_service -.->|Deliver Content| web_app
+    cdn_service -.->|Deliver Content| mobile_app
+    
+    % Monitoring
+    api_gateway -.->|Logs| monitoring_service
+    upload_handler -.->|Logs| monitoring_service
+    image_processor -.->|Logs| monitoring_service
+    monitoring_service -->|Analyze| logs_analyzer
+    
+    % Styling
+    style web_app fill:#D4F1F9,stroke:#1E90FF
+    style mobile_app fill:#D4F1F9,stroke:#1E90FF
+    style api_gateway fill:#F5F5F5,stroke:#666666
+    style auth fill:#F8CECC,stroke:#B85450
+    style object_store fill:#E1D5E7,stroke:#9673A6
+    style metadata_db fill:#E1D5E7,stroke:#9673A6
+    style user_db fill:#E1D5E7,stroke:#9673A6
+    style event_bus fill:#FFF2CC,stroke:#D6B656
+    style cdn_service fill:#F5F5F5,stroke:#666666,stroke-dasharray: 5 5
+    style title fill:#FFFFFF,stroke:#FFFFFF,color:#000000,font-size:16px
+    
+    % Function node styling
+    style upload_handler fill:#D5E8D4,stroke:#82B366
+    style image_processor fill:#D5E8D4,stroke:#82B366
+    style thumbnail_generator fill:#D5E8D4,stroke:#82B366
+    style metadata_extractor fill:#D5E8D4,stroke:#82B366
+    style notification_sender fill:#D5E8D4,stroke:#82B366
+    style logs_analyzer fill:#D5E8D4,stroke:#82B366
+    style monitoring_service fill:#D5E8D4,stroke:#82B366 

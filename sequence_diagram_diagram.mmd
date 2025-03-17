@@ -1,0 +1,13 @@
+sequenceDiagram
+    participant User
+    participant Web Server
+    participant Database
+    User->>Web Server: Request login page
+    Web Server->>User: Send login page
+    User->>Web Server: Enter username and password
+    Web Server->>Database: Verify credentials
+    Database-->>Web Server: Authentication result
+    Web Server->>User: Send authentication result
+    Note over User, Web Server: Successful login
+    User->>Web Server: Request user dashboard
+    Web Server->>User: Send user dashboard

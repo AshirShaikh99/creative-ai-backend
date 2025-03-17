@@ -1,0 +1,466 @@
+{
+  "type": "software_architecture",
+  "title": "Multi-channel E-commerce Platform Architecture",
+  "nodes": [
+    {
+      "id": "web_ui",
+      "label": "Web UI",
+      "type": "frontend",
+      "description": "User interface for web clients",
+      "technology": "React"
+    },
+    {
+      "id": "mobile_ui",
+      "label": "Mobile UI",
+      "type": "frontend",
+      "description": "User interface for mobile clients",
+      "technology": "React Native"
+    },
+    {
+      "id": "iot_ui",
+      "label": "IoT UI",
+      "type": "frontend",
+      "description": "User interface for IoT clients",
+      "technology": "Vue.js"
+    },
+    {
+      "id": "web_bff",
+      "label": "Web BFF",
+      "type": "backend",
+      "description": "Backend for Frontend for web clients",
+      "technology": "Node.js"
+    },
+    {
+      "id": "mobile_bff",
+      "label": "Mobile BFF",
+      "type": "backend",
+      "description": "Backend for Frontend for mobile clients",
+      "technology": "Node.js"
+    },
+    {
+      "id": "iot_bff",
+      "label": "IoT BFF",
+      "type": "backend",
+      "description": "Backend for Frontend for IoT clients",
+      "technology": "Go"
+    },
+    {
+      "id": "product_api",
+      "label": "Product API",
+      "type": "backend",
+      "description": "API for managing products",
+      "technology": "Express.js"
+    },
+    {
+      "id": "order_api",
+      "label": "Order API",
+      "type": "backend",
+      "description": "API for managing orders",
+      "technology": "Express.js"
+    },
+    {
+      "id": "user_api",
+      "label": "User API",
+      "type": "backend",
+      "description": "API for managing users",
+      "technology": "Express.js"
+    },
+    {
+      "id": "payment_api",
+      "label": "Payment API",
+      "type": "backend",
+      "description": "API for processing payments",
+      "technology": "Express.js"
+    },
+    {
+      "id": "inventory_db",
+      "label": "Inventory DB",
+      "type": "database",
+      "description": "Database for storing inventory data",
+      "technology": "PostgreSQL"
+    },
+    {
+      "id": "order_db",
+      "label": "Order DB",
+      "type": "database",
+      "description": "Database for storing order data",
+      "technology": "MongoDB"
+    },
+    {
+      "id": "user_db",
+      "label": "User DB",
+      "type": "database",
+      "description": "Database for storing user data",
+      "technology": "MySQL"
+    },
+    {
+      "id": "payment_db",
+      "label": "Payment DB",
+      "type": "database",
+      "description": "Database for storing payment data",
+      "technology": "Cassandra"
+    },
+    {
+      "id": "message_queue",
+      "label": "Message Queue",
+      "type": "infrastructure",
+      "description": "Message queue for event-driven communication",
+      "technology": "RabbitMQ"
+    },
+    {
+      "id": "load_balancer",
+      "label": "Load Balancer",
+      "type": "infrastructure",
+      "description": "Load balancer for distributing traffic",
+      "technology": "Nginx"
+    },
+    {
+      "id": "api_gateway",
+      "label": "API Gateway",
+      "type": "infrastructure",
+      "description": "API gateway for managing API traffic",
+      "technology": "Kong"
+    },
+    {
+      "id": "keycloak",
+      "label": "Keycloak",
+      "type": "security",
+      "description": "Identity and access management service",
+      "technology": "Keycloak"
+    }
+  ],
+  "connections": [
+    {
+      "from": "web_ui",
+      "to": "web_bff",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "mobile_ui",
+      "to": "mobile_bff",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "iot_ui",
+      "to": "iot_bff",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "MQTT"
+    },
+    {
+      "from": "web_bff",
+      "to": "product_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "web_bff",
+      "to": "order_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "web_bff",
+      "to": "user_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "web_bff",
+      "to": "payment_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "mobile_bff",
+      "to": "product_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "mobile_bff",
+      "to": "order_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "mobile_bff",
+      "to": "user_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "mobile_bff",
+      "to": "payment_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "iot_bff",
+      "to": "product_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "MQTT"
+    },
+    {
+      "from": "iot_bff",
+      "to": "order_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "MQTT"
+    },
+    {
+      "from": "iot_bff",
+      "to": "user_api",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "MQTT"
+    },
+    {
+      "from": "product_api",
+      "to": "inventory_db",
+      "label": "Database queries",
+      "type": "database",
+      "protocol": "SQL"
+    },
+    {
+      "from": "order_api",
+      "to": "order_db",
+      "label": "Database queries",
+      "type": "database",
+      "protocol": "NoSQL"
+    },
+    {
+      "from": "user_api",
+      "to": "user_db",
+      "label": "Database queries",
+      "type": "database",
+      "protocol": "SQL"
+    },
+    {
+      "from": "payment_api",
+      "to": "payment_db",
+      "label": "Database queries",
+      "type": "database",
+      "protocol": "NoSQL"
+    },
+    {
+      "from": "product_api",
+      "to": "message_queue",
+      "label": "Event flows",
+      "type": "message_queue",
+      "protocol": "AMQP"
+    },
+    {
+      "from": "order_api",
+      "to": "message_queue",
+      "label": "Event flows",
+      "type": "message_queue",
+      "protocol": "AMQP"
+    },
+    {
+      "from": "user_api",
+      "to": "message_queue",
+      "label": "Event flows",
+      "type": "message_queue",
+      "protocol": "AMQP"
+    },
+    {
+      "from": "payment_api",
+      "to": "message_queue",
+      "label": "Event flows",
+      "type": "message_queue",
+      "protocol": "AMQP"
+    },
+    {
+      "from": "message_queue",
+      "to": "web_bff",
+      "label": "Event flows",
+      "type": "message_queue",
+      "protocol": "AMQP"
+    },
+    {
+      "from": "message_queue",
+      "to": "mobile_bff",
+      "label": "Event flows",
+      "type": "message_queue",
+      "protocol": "AMQP"
+    },
+    {
+      "from": "message_queue",
+      "to": "iot_bff",
+      "label": "Event flows",
+      "type": "message_queue",
+      "protocol": "MQTT"
+    },
+    {
+      "from": "web_bff",
+      "to": "keycloak",
+      "label": "Authentication flows",
+      "type": "authentication",
+      "protocol": "OAuth"
+    },
+    {
+      "from": "mobile_bff",
+      "to": "keycloak",
+      "label": "Authentication flows",
+      "type": "authentication",
+      "protocol": "OAuth"
+    },
+    {
+      "from": "iot_bff",
+      "to": "keycloak",
+      "label": "Authentication flows",
+      "type": "authentication",
+      "protocol": "OAuth"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "nodes": ["web_ui", "mobile_ui", "iot_ui"]
+    },
+    {
+      "id": "backend",
+      "label": "Backend",
+      "nodes": [
+        "web_bff",
+        "mobile_bff",
+        "iot_bff",
+        "product_api",
+        "order_api",
+        "user_api",
+        "payment_api"
+      ]
+    },
+    {
+      "id": "data",
+      "label": "Data",
+      "nodes": [
+        "inventory_db",
+        "order_db",
+        "user_db",
+        "payment_db"
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure",
+      "nodes": [
+        "message_queue",
+        "load_balancer",
+        "api_gateway"
+      ]
+    },
+    {
+      "id": "security",
+      "label": "Security",
+      "nodes": ["keycloak"]
+    }
+  ],
+  "styles": {
+    "web_ui": {
+      "color": "#4caf50",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "mobile_ui": {
+      "color": "#009688",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "iot_ui": {
+      "color": "#3f51b5",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "web_bff": {
+      "color": "#ffeb3b",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "mobile_bff": {
+      "color": "#9c27b0",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "iot_bff": {
+      "color": "#e91e63",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "product_api": {
+      "color": "#607d8b",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "order_api": {
+      "color": "#f44336",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "user_api": {
+      "color": "#2196f3",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "payment_api": {
+      "color": "#00bcd4",
+      "shape": "rectangle",
+      "border": "solid"
+    },
+    "inventory_db": {
+      "color": "#9e9e9e",
+      "shape": "cylinder",
+      "border": "solid"
+    },
+    "order_db": {
+      "color": "#607d8b",
+      "shape": "cylinder",
+      "border": "solid"
+    },
+    "user_db": {
+      "color": "#f44336",
+      "shape": "cylinder",
+      "border": "solid"
+    },
+    "payment_db": {
+      "color": "#2196f3",
+      "shape": "cylinder",
+      "border": "solid"
+    },
+    "message_queue": {
+      "color": "#e0e0e0",
+      "shape": "triangle",
+      "border": "dashed"
+    },
+    "load_balancer": {
+      "color": "#bdbdbd",
+      "shape": "triangle",
+      "border": "dashed"
+    },
+    "api_gateway": {
+      "color": "#757575",
+      "shape": "triangle",
+      "border": "dashed"
+    },
+    "keycloak": {
+      "color": "#3f51b5",
+      "shape": "hexagon",
+      "border": "solid"
+    }
+  }
+}

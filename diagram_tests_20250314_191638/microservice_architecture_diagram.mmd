@@ -1,0 +1,202 @@
+{
+    "type": "software_architecture",
+    "title": "E-Commerce Platform Architecture",
+    "nodes": [
+        {
+            "id": "ui",
+            "label": "User Interface",
+            "type": "frontend",
+            "description": "Handles user interaction and communication with the backend services.",
+            "technology": "React"
+        },
+        {
+            "id": "user-service",
+            "label": "User Service",
+            "type": "microservice",
+            "description": "Manages user authentication, authorization, and profile information.",
+            "technology": "Node.js/TypeScript"
+        },
+        {
+            "id": "product-catalog",
+            "label": "Product Catalog",
+            "type": "microservice",
+            "description": "Manages the product catalog, pricing, and inventory.",
+            "technology": "Java/Spring Boot"
+        },
+        {
+            "id": "order-management",
+            "label": "Order Management",
+            "type": "microservice",
+            "description": "Manages shopping carts, orders, and shipping details.",
+            "technology": "Node.js/TypeScript"
+        },
+        {
+            "id": "payment-processing",
+            "label": "Payment Processing",
+            "type": "microservice",
+            "description": "Handles payment processing and transaction management.",
+            "technology": "Go/Gin"
+        },
+        {
+            "id": "postgres-db",
+            "label": "PostgreSQL Database",
+            "type": "database",
+            "description": "Stores relational data for the e-commerce platform.",
+            "technology": "PostgreSQL"
+        },
+        {
+            "id": "redis-cache",
+            "label": "Redis Cache",
+            "type": "infrastructure",
+            "description": "Handles caching for frequently accessed data.",
+            "technology": "Redis"
+        },
+        {
+            "id": "kafka",
+            "label": "Kafka",
+            "type": "infrastructure",
+            "description": "Manages event-driven communication between microservices.",
+            "technology": "Apache Kafka"
+        },
+        {
+            "id": "api-gateway",
+            "label": "API Gateway",
+            "type": "infrastructure",
+            "description": "Handles external API calls and routes requests to appropriate microservices.",
+            "technology": "Envoy"
+        }
+    ],
+    "connections": [
+        {
+            "from": "ui",
+            "to": "user-service",
+            "label": "User authentication and authorization.",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "ui",
+            "to": "product-catalog",
+            "label": "Fetch product catalog and pricing.",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "ui",
+            "to": "order-management",
+            "label": "Manage shopping cart and orders.",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "user-service",
+            "to": "postgres-db",
+            "label": "Store user data.",
+            "type": "database",
+            "protocol": "PostgreSQL"
+        },
+        {
+            "from": "product-catalog",
+            "to": "postgres-db",
+            "label": "Store product and inventory data.",
+            "type": "database",
+            "protocol": "PostgreSQL"
+        },
+        {
+            "from": "order-management",
+            "to": "postgres-db",
+            "label": "Store order and shipping details.",
+            "type": "database",
+            "protocol": "PostgreSQL"
+        },
+        {
+            "from": "payment-processing",
+            "to": "postgres-db",
+            "label": "Store payment transactions.",
+            "type": "database",
+            "protocol": "PostgreSQL"
+        },
+        {
+            "from": "product-catalog",
+            "to": "kafka",
+            "label": "Product availability updates.",
+            "type": "event",
+            "protocol": "Kafka"
+        },
+        {
+            "from": "order-management",
+            "to": "kafka",
+            "label": "Order processed events.",
+            "type": "event",
+            "protocol": "Kafka"
+        },
+        {
+            "from": "kafka",
+            "to": "payment-processing",
+            "label": "Payment processing requests.",
+            "type": "event",
+            "protocol": "Kafka"
+        },
+        {
+            "from": "api-gateway",
+            "to": "user-service",
+            "label": "User service API requests.",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api-gateway",
+            "to": "product-catalog",
+            "label": "Product catalog API requests.",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api-gateway",
+            "to": "order-management",
+            "label": "Order management API requests.",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api-gateway",
+            "to": "payment-processing",
+            "label": "Payment processing API requests.",
+            "type": "api",
+            "protocol": "HTTP"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "nodes": ["ui"]
+        },
+        {
+            "id": "backend",
+            "label": "Backend",
+            "nodes": ["user-service", "product-catalog", "order-management", "payment-processing"]
+        },
+        {
+            "id": "data",
+            "label": "Data",
+            "nodes": ["postgres-db"]
+        },
+        {
+            "id": "infrastructure",
+            "label": "Infrastructure",
+            "nodes": ["redis-cache", "kafka", "api-gateway"]
+        }
+    ],
+    "styles": {
+        "ui": {"color": "#2ecc71", "shape": "ellipse", "border": "dashed"},
+        "user-service": {"color": "#3498db", "shape": "rectangle", "border": "solid"},
+        "product-catalog": {"color": "#9b59b6", "shape": "rectangle", "border": "solid"},
+        "order-management": {"color": "#e74c3c", "shape": "rectangle", "border": "solid"},
+        "payment-processing": {"color": "#16a085", "shape": "rectangle", "border": "solid"},
+        "postgres-db": {"color": "#f1c40f", "shape": "cylinder", "border": "solid"},
+        "redis-cache": {"color": "#27ae60", "shape": "parallelogram", "border": "solid"},
+        "kafka": {"color": "#2980b9", "shape": "parallelogram", "border": "solid"},
+        "api-gateway": {"color": "#f39c12", "shape": "diamond", "border": "solid"}
+    }
+}

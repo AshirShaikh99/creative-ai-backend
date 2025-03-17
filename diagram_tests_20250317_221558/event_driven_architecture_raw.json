@@ -1,0 +1,722 @@
+{
+  "diagram_type": "software_architecture",
+  "syntax": "flowchart TD\n    title[\"Real-Time Analytics System Architecture\"]\n    subgraph frontend[\"Frontend\"]\n        frontend_ui\n        client_library\n    end\n    subgraph backend[\"Backend\"]\n        producer_service\n        data_processing_pipeline\n        consumer_service\n    end\n    subgraph data[\"Data\"]\n        data_warehouse\n        time_series_database\n    end\n    subgraph infrastructure[\"Infrastructure\"]\n        event_bus\n        api_gateway\n    end\n    subgraph security[\"Security\"]\n        authentication_service\n    end\n    frontend_ui[\"Frontend UI (React)\"]\n    client_library[\"Client Library (TypeScript)\"]\n    producer_service[\"Producer Service (Node.js)\"]\n    event_bus[\"Event Bus (Apache Kafka)\"]\n    data_processing_pipeline[\"Data Processing Pipeline (Apache Beam)\"]\n    data_warehouse[(\"Data Warehouse (Google BigQuery)\")]\n    time_series_database[(\"Time Series Database (InfluxDB)\")]\n    consumer_service[\"Consumer Service (Python)\"]\n    authentication_service[\"Authentication Service (OAuth2)\"]\n    api_gateway[\"API Gateway (Envoy Proxy)\"]\n    frontend_ui --> client_library\n    client_library --> producer_service\n    producer_service --> event_bus\n    event_bus --> data_processing_pipeline\n    data_processing_pipeline --> data_warehouse\n    data_processing_pipeline --> time_series_database\n    time_series_database --> consumer_service\n    data_warehouse --> consumer_service\n    consumer_service --> api_gateway\n    frontend_ui --> authentication_service\n    client_library --> authentication_service\n    api_gateway --> authentication_service\n    style frontend_ui fill:#3f51b5,stroke:solid\n    style client_library fill:#4caf50,stroke:dashed\n    style producer_service fill:#f44336,stroke:dotted\n    style event_bus fill:#2196f3,stroke:double\n    style data_processing_pipeline fill:#e91e63,stroke:solid\n    style data_warehouse fill:#9c27b0,stroke:solid\n    style time_series_database fill:#00bcd4,stroke:solid\n    style consumer_service fill:#009688,stroke:solid\n    style authentication_service fill:#607d8b,stroke:solid\n    style api_gateway fill:#333,stroke:solid\n    style title fill:#FFFFFF,stroke:#FFFFFF,color:#000000,font-size:16px\n",
+  "description": "This diagram represents a real-time analytics system architecture, consisting of a frontend with a UI and client library, a backend with producer and consumer services, a data processing pipeline, and data storage, all connected through an event bus, an API gateway, and an authentication service, running on a defined infrastructure.",
+  "metadata": {
+    "raw_data": {
+      "type": "software_architecture",
+      "title": "Real-Time Analytics System Architecture",
+      "nodes": [
+        {
+          "id": "frontend_ui",
+          "label": "Frontend UI",
+          "type": "frontend",
+          "description": "Handles user interaction and data visualization",
+          "technology": "React"
+        },
+        {
+          "id": "client_library",
+          "label": "Client Library",
+          "type": "frontend",
+          "description": "Facilitates communication between frontend and analytics system",
+          "technology": "TypeScript"
+        },
+        {
+          "id": "producer_service",
+          "label": "Producer Service",
+          "type": "backend",
+          "description": "Ingests and validates data from various sources",
+          "technology": "Node.js"
+        },
+        {
+          "id": "event_bus",
+          "label": "Event Bus",
+          "type": "infrastructure",
+          "description": "Handles event distribution and message queuing",
+          "technology": "Apache Kafka"
+        },
+        {
+          "id": "data_processing_pipeline",
+          "label": "Data Processing Pipeline",
+          "type": "backend",
+          "description": "Performs data transformation and enrichment",
+          "technology": "Apache Beam"
+        },
+        {
+          "id": "data_warehouse",
+          "label": "Data Warehouse",
+          "type": "data_store",
+          "description": "Stores and manages structured data",
+          "technology": "Google BigQuery"
+        },
+        {
+          "id": "time_series_database",
+          "label": "Time Series Database",
+          "type": "data_store",
+          "description": "Stores time-series data",
+          "technology": "InfluxDB"
+        },
+        {
+          "id": "consumer_service",
+          "label": "Consumer Service",
+          "type": "backend",
+          "description": "Processes and aggregates real-time data",
+          "technology": "Python"
+        },
+        {
+          "id": "authentication_service",
+          "label": "Authentication Service",
+          "type": "security",
+          "description": "Manages user authentication and authorization",
+          "technology": "OAuth2"
+        },
+        {
+          "id": "api_gateway",
+          "label": "API Gateway",
+          "type": "infrastructure",
+          "description": "Handles external API calls",
+          "technology": "Envoy Proxy"
+        }
+      ],
+      "connections": [
+        {
+          "from": "frontend_ui",
+          "to": "client_library",
+          "label": "API calls",
+          "type": "api",
+          "protocol": "HTTP"
+        },
+        {
+          "from": "client_library",
+          "to": "producer_service",
+          "label": "Data",
+          "type": "data",
+          "protocol": "gRPC"
+        },
+        {
+          "from": "producer_service",
+          "to": "event_bus",
+          "label": "Events",
+          "type": "event",
+          "protocol": "Kafka"
+        },
+        {
+          "from": "event_bus",
+          "to": "data_processing_pipeline",
+          "label": "Data",
+          "type": "data",
+          "protocol": "Kafka"
+        },
+        {
+          "from": "data_processing_pipeline",
+          "to": "data_warehouse",
+          "label": "Data",
+          "type": "data",
+          "protocol": "BigQuery"
+        },
+        {
+          "from": "data_processing_pipeline",
+          "to": "time_series_database",
+          "label": "Data",
+          "type": "data",
+          "protocol": "InfluxDB"
+        },
+        {
+          "from": "time_series_database",
+          "to": "consumer_service",
+          "label": "Data",
+          "type": "data",
+          "protocol": "InfluxDB"
+        },
+        {
+          "from": "data_warehouse",
+          "to": "consumer_service",
+          "label": "Data",
+          "type": "data",
+          "protocol": "BigQuery"
+        },
+        {
+          "from": "consumer_service",
+          "to": "api_gateway",
+          "label": "API calls",
+          "type": "api",
+          "protocol": "HTTP"
+        },
+        {
+          "from": "frontend_ui",
+          "to": "authentication_service",
+          "label": "Authentication",
+          "type": "auth",
+          "protocol": "OAuth2"
+        },
+        {
+          "from": "client_library",
+          "to": "authentication_service",
+          "label": "Authentication",
+          "type": "auth",
+          "protocol": "OAuth2"
+        },
+        {
+          "from": "api_gateway",
+          "to": "authentication_service",
+          "label": "Authentication",
+          "type": "auth",
+          "protocol": "OAuth2"
+        }
+      ],
+      "clusters": [
+        {
+          "id": "frontend",
+          "label": "Frontend",
+          "nodes": [
+            "frontend_ui",
+            "client_library"
+          ]
+        },
+        {
+          "id": "backend",
+          "label": "Backend",
+          "nodes": [
+            "producer_service",
+            "data_processing_pipeline",
+            "consumer_service"
+          ]
+        },
+        {
+          "id": "data",
+          "label": "Data",
+          "nodes": [
+            "data_warehouse",
+            "time_series_database"
+          ]
+        },
+        {
+          "id": "infrastructure",
+          "label": "Infrastructure",
+          "nodes": [
+            "event_bus",
+            "api_gateway"
+          ]
+        },
+        {
+          "id": "security",
+          "label": "Security",
+          "nodes": [
+            "authentication_service"
+          ]
+        }
+      ],
+      "styles": {
+        "frontend_ui": {
+          "color": "#3f51b5",
+          "shape": "ellipse",
+          "border": "solid"
+        },
+        "client_library": {
+          "color": "#4caf50",
+          "shape": "cube",
+          "border": "dashed"
+        },
+        "producer_service": {
+          "color": "#f44336",
+          "shape": "rectangle",
+          "border": "dotted"
+        },
+        "event_bus": {
+          "color": "#2196f3",
+          "shape": "parallelogram",
+          "border": "double"
+        },
+        "data_processing_pipeline": {
+          "color": "#e91e63",
+          "shape": "rhombus",
+          "border": "solid"
+        },
+        "data_warehouse": {
+          "color": "#9c27b0",
+          "shape": "cylinder",
+          "border": "solid"
+        },
+        "time_series_database": {
+          "color": "#00bcd4",
+          "shape": "diamond",
+          "border": "solid"
+        },
+        "consumer_service": {
+          "color": "#009688",
+          "shape": "egg",
+          "border": "solid"
+        },
+        "authentication_service": {
+          "color": "#607d8b",
+          "shape": "trapezoid",
+          "border": "solid"
+        },
+        "api_gateway": {
+          "color": "#333",
+          "shape": "rhombus",
+          "border": "solid"
+        }
+      }
+    },
+    "options": {},
+    "model": "mixtral-8x7b-32768",
+    "tokens": 2532
+  },
+  "raw_structure": {
+    "type": "software_architecture",
+    "title": "Real-Time Analytics System Architecture",
+    "nodes": [
+      {
+        "id": "frontend_ui",
+        "label": "Frontend UI",
+        "type": "frontend",
+        "description": "Handles user interaction and data visualization",
+        "technology": "React"
+      },
+      {
+        "id": "client_library",
+        "label": "Client Library",
+        "type": "frontend",
+        "description": "Facilitates communication between frontend and analytics system",
+        "technology": "TypeScript"
+      },
+      {
+        "id": "producer_service",
+        "label": "Producer Service",
+        "type": "backend",
+        "description": "Ingests and validates data from various sources",
+        "technology": "Node.js"
+      },
+      {
+        "id": "event_bus",
+        "label": "Event Bus",
+        "type": "infrastructure",
+        "description": "Handles event distribution and message queuing",
+        "technology": "Apache Kafka"
+      },
+      {
+        "id": "data_processing_pipeline",
+        "label": "Data Processing Pipeline",
+        "type": "backend",
+        "description": "Performs data transformation and enrichment",
+        "technology": "Apache Beam"
+      },
+      {
+        "id": "data_warehouse",
+        "label": "Data Warehouse",
+        "type": "data_store",
+        "description": "Stores and manages structured data",
+        "technology": "Google BigQuery"
+      },
+      {
+        "id": "time_series_database",
+        "label": "Time Series Database",
+        "type": "data_store",
+        "description": "Stores time-series data",
+        "technology": "InfluxDB"
+      },
+      {
+        "id": "consumer_service",
+        "label": "Consumer Service",
+        "type": "backend",
+        "description": "Processes and aggregates real-time data",
+        "technology": "Python"
+      },
+      {
+        "id": "authentication_service",
+        "label": "Authentication Service",
+        "type": "security",
+        "description": "Manages user authentication and authorization",
+        "technology": "OAuth2"
+      },
+      {
+        "id": "api_gateway",
+        "label": "API Gateway",
+        "type": "infrastructure",
+        "description": "Handles external API calls",
+        "technology": "Envoy Proxy"
+      }
+    ],
+    "connections": [
+      {
+        "from": "frontend_ui",
+        "to": "client_library",
+        "label": "API calls",
+        "type": "api",
+        "protocol": "HTTP"
+      },
+      {
+        "from": "client_library",
+        "to": "producer_service",
+        "label": "Data",
+        "type": "data",
+        "protocol": "gRPC"
+      },
+      {
+        "from": "producer_service",
+        "to": "event_bus",
+        "label": "Events",
+        "type": "event",
+        "protocol": "Kafka"
+      },
+      {
+        "from": "event_bus",
+        "to": "data_processing_pipeline",
+        "label": "Data",
+        "type": "data",
+        "protocol": "Kafka"
+      },
+      {
+        "from": "data_processing_pipeline",
+        "to": "data_warehouse",
+        "label": "Data",
+        "type": "data",
+        "protocol": "BigQuery"
+      },
+      {
+        "from": "data_processing_pipeline",
+        "to": "time_series_database",
+        "label": "Data",
+        "type": "data",
+        "protocol": "InfluxDB"
+      },
+      {
+        "from": "time_series_database",
+        "to": "consumer_service",
+        "label": "Data",
+        "type": "data",
+        "protocol": "InfluxDB"
+      },
+      {
+        "from": "data_warehouse",
+        "to": "consumer_service",
+        "label": "Data",
+        "type": "data",
+        "protocol": "BigQuery"
+      },
+      {
+        "from": "consumer_service",
+        "to": "api_gateway",
+        "label": "API calls",
+        "type": "api",
+        "protocol": "HTTP"
+      },
+      {
+        "from": "frontend_ui",
+        "to": "authentication_service",
+        "label": "Authentication",
+        "type": "auth",
+        "protocol": "OAuth2"
+      },
+      {
+        "from": "client_library",
+        "to": "authentication_service",
+        "label": "Authentication",
+        "type": "auth",
+        "protocol": "OAuth2"
+      },
+      {
+        "from": "api_gateway",
+        "to": "authentication_service",
+        "label": "Authentication",
+        "type": "auth",
+        "protocol": "OAuth2"
+      }
+    ],
+    "clusters": [
+      {
+        "id": "frontend",
+        "label": "Frontend",
+        "nodes": [
+          "frontend_ui",
+          "client_library"
+        ]
+      },
+      {
+        "id": "backend",
+        "label": "Backend",
+        "nodes": [
+          "producer_service",
+          "data_processing_pipeline",
+          "consumer_service"
+        ]
+      },
+      {
+        "id": "data",
+        "label": "Data",
+        "nodes": [
+          "data_warehouse",
+          "time_series_database"
+        ]
+      },
+      {
+        "id": "infrastructure",
+        "label": "Infrastructure",
+        "nodes": [
+          "event_bus",
+          "api_gateway"
+        ]
+      },
+      {
+        "id": "security",
+        "label": "Security",
+        "nodes": [
+          "authentication_service"
+        ]
+      }
+    ],
+    "styles": {
+      "frontend_ui": {
+        "color": "#3f51b5",
+        "shape": "ellipse",
+        "border": "solid"
+      },
+      "client_library": {
+        "color": "#4caf50",
+        "shape": "cube",
+        "border": "dashed"
+      },
+      "producer_service": {
+        "color": "#f44336",
+        "shape": "rectangle",
+        "border": "dotted"
+      },
+      "event_bus": {
+        "color": "#2196f3",
+        "shape": "parallelogram",
+        "border": "double"
+      },
+      "data_processing_pipeline": {
+        "color": "#e91e63",
+        "shape": "rhombus",
+        "border": "solid"
+      },
+      "data_warehouse": {
+        "color": "#9c27b0",
+        "shape": "cylinder",
+        "border": "solid"
+      },
+      "time_series_database": {
+        "color": "#00bcd4",
+        "shape": "diamond",
+        "border": "solid"
+      },
+      "consumer_service": {
+        "color": "#009688",
+        "shape": "egg",
+        "border": "solid"
+      },
+      "authentication_service": {
+        "color": "#607d8b",
+        "shape": "trapezoid",
+        "border": "solid"
+      },
+      "api_gateway": {
+        "color": "#333",
+        "shape": "rhombus",
+        "border": "solid"
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "frontend_ui",
+      "label": "Frontend UI",
+      "type": "frontend",
+      "description": "Handles user interaction and data visualization",
+      "technology": "React"
+    },
+    {
+      "id": "client_library",
+      "label": "Client Library",
+      "type": "frontend",
+      "description": "Facilitates communication between frontend and analytics system",
+      "technology": "TypeScript"
+    },
+    {
+      "id": "producer_service",
+      "label": "Producer Service",
+      "type": "backend",
+      "description": "Ingests and validates data from various sources",
+      "technology": "Node.js"
+    },
+    {
+      "id": "event_bus",
+      "label": "Event Bus",
+      "type": "infrastructure",
+      "description": "Handles event distribution and message queuing",
+      "technology": "Apache Kafka"
+    },
+    {
+      "id": "data_processing_pipeline",
+      "label": "Data Processing Pipeline",
+      "type": "backend",
+      "description": "Performs data transformation and enrichment",
+      "technology": "Apache Beam"
+    },
+    {
+      "id": "data_warehouse",
+      "label": "Data Warehouse",
+      "type": "data_store",
+      "description": "Stores and manages structured data",
+      "technology": "Google BigQuery"
+    },
+    {
+      "id": "time_series_database",
+      "label": "Time Series Database",
+      "type": "data_store",
+      "description": "Stores time-series data",
+      "technology": "InfluxDB"
+    },
+    {
+      "id": "consumer_service",
+      "label": "Consumer Service",
+      "type": "backend",
+      "description": "Processes and aggregates real-time data",
+      "technology": "Python"
+    },
+    {
+      "id": "authentication_service",
+      "label": "Authentication Service",
+      "type": "security",
+      "description": "Manages user authentication and authorization",
+      "technology": "OAuth2"
+    },
+    {
+      "id": "api_gateway",
+      "label": "API Gateway",
+      "type": "infrastructure",
+      "description": "Handles external API calls",
+      "technology": "Envoy Proxy"
+    }
+  ],
+  "connections": [
+    {
+      "from": "frontend_ui",
+      "to": "client_library",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "client_library",
+      "to": "producer_service",
+      "label": "Data",
+      "type": "data",
+      "protocol": "gRPC"
+    },
+    {
+      "from": "producer_service",
+      "to": "event_bus",
+      "label": "Events",
+      "type": "event",
+      "protocol": "Kafka"
+    },
+    {
+      "from": "event_bus",
+      "to": "data_processing_pipeline",
+      "label": "Data",
+      "type": "data",
+      "protocol": "Kafka"
+    },
+    {
+      "from": "data_processing_pipeline",
+      "to": "data_warehouse",
+      "label": "Data",
+      "type": "data",
+      "protocol": "BigQuery"
+    },
+    {
+      "from": "data_processing_pipeline",
+      "to": "time_series_database",
+      "label": "Data",
+      "type": "data",
+      "protocol": "InfluxDB"
+    },
+    {
+      "from": "time_series_database",
+      "to": "consumer_service",
+      "label": "Data",
+      "type": "data",
+      "protocol": "InfluxDB"
+    },
+    {
+      "from": "data_warehouse",
+      "to": "consumer_service",
+      "label": "Data",
+      "type": "data",
+      "protocol": "BigQuery"
+    },
+    {
+      "from": "consumer_service",
+      "to": "api_gateway",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "frontend_ui",
+      "to": "authentication_service",
+      "label": "Authentication",
+      "type": "auth",
+      "protocol": "OAuth2"
+    },
+    {
+      "from": "client_library",
+      "to": "authentication_service",
+      "label": "Authentication",
+      "type": "auth",
+      "protocol": "OAuth2"
+    },
+    {
+      "from": "api_gateway",
+      "to": "authentication_service",
+      "label": "Authentication",
+      "type": "auth",
+      "protocol": "OAuth2"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "nodes": [
+        "frontend_ui",
+        "client_library"
+      ]
+    },
+    {
+      "id": "backend",
+      "label": "Backend",
+      "nodes": [
+        "producer_service",
+        "data_processing_pipeline",
+        "consumer_service"
+      ]
+    },
+    {
+      "id": "data",
+      "label": "Data",
+      "nodes": [
+        "data_warehouse",
+        "time_series_database"
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure",
+      "nodes": [
+        "event_bus",
+        "api_gateway"
+      ]
+    },
+    {
+      "id": "security",
+      "label": "Security",
+      "nodes": [
+        "authentication_service"
+      ]
+    }
+  ]
+}

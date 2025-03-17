@@ -1,0 +1,28 @@
+flowchart TD
+    rect1["Basic Rectangle"]
+    round1("Round Edges")
+    stadium1(["Stadium"])
+    subroutine1[["Subroutine"]]
+    cylinder1[("Database")]
+    circle1(("Circle"))
+    ui1>"User Interface"]
+    rhombus1{"Decision"}
+    hexagon1{{"Hexagon"}}
+    parallel1[/"Parallelogram 1"/]
+    parallel2["Parallelogram 2"\]
+    trap1[/"Trapezoid 1"\]
+    trap2["Trapezoid 2"/]
+
+    rect1 --> round1
+    round1 --> stadium1
+    stadium1 --> subroutine1
+    subroutine1 --> cylinder1
+    cylinder1 --> circle1
+    circle1 --> ui1
+    ui1 --> rhombus1
+    rhombus1 -->|Yes| hexagon1
+    rhombus1 -->|No| parallel1
+    hexagon1 --> parallel2
+    parallel1 --> trap1
+    parallel2 --> trap2
+    

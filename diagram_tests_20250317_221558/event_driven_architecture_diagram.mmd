@@ -1,0 +1,55 @@
+flowchart TD
+    title["Real-Time Analytics System Architecture"]
+    subgraph frontend["Frontend"]
+        frontend_ui
+        client_library
+    end
+    subgraph backend["Backend"]
+        producer_service
+        data_processing_pipeline
+        consumer_service
+    end
+    subgraph data["Data"]
+        data_warehouse
+        time_series_database
+    end
+    subgraph infrastructure["Infrastructure"]
+        event_bus
+        api_gateway
+    end
+    subgraph security["Security"]
+        authentication_service
+    end
+    frontend_ui["Frontend UI (React)"]
+    client_library["Client Library (TypeScript)"]
+    producer_service["Producer Service (Node.js)"]
+    event_bus["Event Bus (Apache Kafka)"]
+    data_processing_pipeline["Data Processing Pipeline (Apache Beam)"]
+    data_warehouse[("Data Warehouse (Google BigQuery)")]
+    time_series_database[("Time Series Database (InfluxDB)")]
+    consumer_service["Consumer Service (Python)"]
+    authentication_service["Authentication Service (OAuth2)"]
+    api_gateway["API Gateway (Envoy Proxy)"]
+    frontend_ui --> client_library
+    client_library --> producer_service
+    producer_service --> event_bus
+    event_bus --> data_processing_pipeline
+    data_processing_pipeline --> data_warehouse
+    data_processing_pipeline --> time_series_database
+    time_series_database --> consumer_service
+    data_warehouse --> consumer_service
+    consumer_service --> api_gateway
+    frontend_ui --> authentication_service
+    client_library --> authentication_service
+    api_gateway --> authentication_service
+    style frontend_ui fill:#3f51b5,stroke:solid
+    style client_library fill:#4caf50,stroke:dashed
+    style producer_service fill:#f44336,stroke:dotted
+    style event_bus fill:#2196f3,stroke:double
+    style data_processing_pipeline fill:#e91e63,stroke:solid
+    style data_warehouse fill:#9c27b0,stroke:solid
+    style time_series_database fill:#00bcd4,stroke:solid
+    style consumer_service fill:#009688,stroke:solid
+    style authentication_service fill:#607d8b,stroke:solid
+    style api_gateway fill:#333,stroke:solid
+    style title fill:#FFFFFF,stroke:#FFFFFF,color:#000000,font-size:16px

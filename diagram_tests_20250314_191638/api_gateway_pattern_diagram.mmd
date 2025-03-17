@@ -1,0 +1,276 @@
+{
+    "type": "software_architecture",
+    "title": "API Gateway Pattern",
+    "nodes": [
+        {
+            "id": "api_gateway",
+            "label": "API Gateway",
+            "type": "infrastructure",
+            "description": "Handles authentication, rate limiting, and service routing",
+            "technology": "Nginx/Envoy/Kong"
+        },
+        {
+            "id": "ui",
+            "label": "User Interface",
+            "type": "frontend",
+            "description": "Provides user interaction and data visualization",
+            "technology": "React/Angular/Vue"
+        },
+        {
+            "id": "client_lib",
+            "label": "Client Library",
+            "type": "frontend",
+            "description": "Facilitates communication between UI and backend services",
+            "technology": "JavaScript/TypeScript"
+        },
+        {
+            "id": "auth_service",
+            "label": "Authentication Service",
+            "type": "backend",
+            "description": "Manages user authentication and authorization",
+            "technology": "OAuth/OpenID Connect"
+        },
+        {
+            "id": "rate_limiter",
+            "label": "Rate Limiter",
+            "type": "infrastructure",
+            "description": "Implements rate limiting for API requests",
+            "technology": "Nginx/Envoy/HAProxy"
+        },
+        {
+            "id": "user_service",
+            "label": "User Service",
+            "type": "backend",
+            "description": "Handles user-related operations",
+            "technology": "Node.js/Python/Java"
+        },
+        {
+            "id": "product_service",
+            "label": "Product Service",
+            "type": "backend",
+            "description": "Manages product-related operations",
+            "technology": "Node.js/Python/Java"
+        },
+        {
+            "id": "order_service",
+            "label": "Order Service",
+            "type": "backend",
+            "description": "Processes orders and order-related events",
+            "technology": "Node.js/Python/Java"
+        },
+        {
+            "id": "postgres",
+            "label": "PostgreSQL",
+            "type": "database",
+            "description": "Relational database for storing user, product, and order data",
+            "technology": "PostgreSQL"
+        },
+        {
+            "id": "redis",
+            "label": "Redis",
+            "type": "database",
+            "description": "In-memory data store for caching and message queues",
+            "technology": "Redis"
+        },
+        {
+            "id": "kafka",
+            "label": "Kafka",
+            "type": "infrastructure",
+            "description": "Distributed streaming platform for event-driven communication",
+            "technology": "Apache Kafka"
+        }
+    ],
+    "connections": [
+        {
+            "from": "ui",
+            "to": "api_gateway",
+            "label": "API calls",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "client_lib",
+            "to": "api_gateway",
+            "label": "API calls",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api_gateway",
+            "to": "auth_service",
+            "label": "Authentication flow",
+            "type": "auth",
+            "protocol": "OAuth"
+        },
+        {
+            "from": "api_gateway",
+            "to": "rate_limiter",
+            "label": "Rate limiting",
+            "type": "rate_limit",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api_gateway",
+            "to": "user_service",
+            "label": "Service routing",
+            "type": "service_route",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api_gateway",
+            "to": "product_service",
+            "label": "Service routing",
+            "type": "service_route",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api_gateway",
+            "to": "order_service",
+            "label": "Service routing",
+            "type": "service_route",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "user_service",
+            "to": "postgres",
+            "label": "Database queries",
+            "type": "db",
+            "protocol": "PostgreSQL"
+        },
+        {
+            "from": "product_service",
+            "to": "postgres",
+            "label": "Database queries",
+            "type": "db",
+            "protocol": "PostgreSQL"
+        },
+        {
+            "from": "order_service",
+            "to": "postgres",
+            "label": "Database queries",
+            "type": "db",
+            "protocol": "PostgreSQL"
+        },
+        {
+            "from": "user_service",
+            "to": "redis",
+            "label": "Data transformations",
+            "type": "data_transform",
+            "protocol": "Redis"
+        },
+        {
+            "from": "product_service",
+            "to": "redis",
+            "label": "Data transformations",
+            "type": "data_transform",
+            "protocol": "Redis"
+        },
+        {
+            "from": "order_service",
+            "to": "redis",
+            "label": "Data transformations",
+            "type": "data_transform",
+            "protocol": "Redis"
+        },
+        {
+            "from": "user_service",
+            "to": "kafka",
+            "label": "Event flows",
+            "type": "event",
+            "protocol": "Kafka"
+        },
+        {
+            "from": "product_service",
+            "to": "kafka",
+            "label": "Event flows",
+            "type": "event",
+            "protocol": "Kafka"
+        },
+        {
+            "from": "order_service",
+            "to": "kafka",
+            "label": "Event flows",
+            "type": "event",
+            "protocol": "Kafka"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "nodes": ["ui", "client_lib"]
+        },
+        {
+            "id": "backend",
+            "label": "Backend",
+            "nodes": ["auth_service", "user_service", "product_service", "order_service"]
+        },
+        {
+            "id": "data",
+            "label": "Data",
+            "nodes": ["postgres", "redis"]
+        },
+        {
+            "id": "infrastructure",
+            "label": "Infrastructure",
+            "nodes": ["api_gateway", "rate_limiter", "kafka"]
+        }
+    ],
+    "styles": {
+        "api_gateway": {
+            "color": "#FFC107",
+            "shape": "rectangle",
+            "border": "double"
+        },
+        "ui": {
+            "color": "#2196F3",
+            "shape": "rectangle",
+            "border": "single"
+        },
+        "client_lib": {
+            "color": "#00BCD4",
+            "shape": "rectangle",
+            "border": "dashed"
+        },
+        "auth_service": {
+            "color": "#9C27B0",
+            "shape": "rectangle",
+            "border": "single"
+        },
+        "rate_limiter": {
+            "color": "#E91E63",
+            "shape": "rectangle",
+            "border": "dotted"
+        },
+        "user_service": {
+            "color": "#009688",
+            "shape": "rectangle",
+            "border": "single"
+        },
+        "product_service": {
+            "color": "#4CAF50",
+            "shape": "rectangle",
+            "border": "single"
+        },
+        "order_service": {
+            "color": "#3F51B5",
+            "shape": "rectangle",
+            "border": "single"
+        },
+        "postgres": {
+            "color": "#4ECDC4",
+            "shape": "database",
+            "border": "single"
+        },
+        "redis": {
+            "color": "#9E9E9E",
+            "shape": "database",
+            "border": "single"
+        },
+        "kafka": {
+            "color": "#303F9F",
+            "shape": "cloud",
+            "border": "single"
+        }
+    }
+}

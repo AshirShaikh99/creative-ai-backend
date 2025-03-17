@@ -1,0 +1,7 @@
+graph LR
+A[User Registers] --> B[Account Created]
+B --> C[Email Sent]
+C --> D[Email Verified?]
+D -->|Yes| E[Logged In]
+D -->|No| F[Resend Verification Email]
+F --> D

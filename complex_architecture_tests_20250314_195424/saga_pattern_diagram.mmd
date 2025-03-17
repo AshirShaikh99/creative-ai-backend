@@ -1,0 +1,211 @@
+{
+    "type": "software_architecture",
+    "title": "Travel Booking System Architecture",
+    "nodes": [
+        {
+            "id": "ui",
+            "label": "Frontend",
+            "type": "frontend",
+            "description": "User interface for the travel booking system",
+            "technology": "React"
+        },
+        {
+            "id": "flight-api",
+            "label": "Flight API",
+            "type": "backend",
+            "description": "Microservice for flight booking and management",
+            "technology": "Node.js"
+        },
+        {
+            "id": "hotel-api",
+            "label": "Hotel API",
+            "type": "backend",
+            "description": "Microservice for hotel booking and management",
+            "technology": "Node.js"
+        },
+        {
+            "id": "car-api",
+            "label": "Car Rental API",
+            "type": "backend",
+            "description": "Microservice for car rental booking and management",
+            "technology": "Node.js"
+        },
+        {
+            "id": "payment-api",
+            "label": "Payment API",
+            "type": "backend",
+            "description": "Microservice for payment processing and management",
+            "technology": "Node.js"
+        },
+        {
+            "id": "saga-orchestrator",
+            "label": "Saga Orchestrator",
+            "type": "backend",
+            "description": "Manages sagas for handling transactions and compensation for failures",
+            "technology": "Node.js"
+        },
+        {
+            "id": "message-queue",
+            "label": "Message Queue",
+            "type": "infrastructure",
+            "description": "Asynchronous message passing between microservices",
+            "technology": "RabbitMQ"
+        },
+        {
+            "id": "postgres-db",
+            "label": "Postgres DB",
+            "type": "database",
+            "description": "Persistent data storage for the travel booking system",
+            "technology": "PostgreSQL"
+        }
+    ],
+    "connections": [
+        {
+            "from": "ui",
+            "to": "flight-api",
+            "label": "Flight Booking API Call",
+            "type": "api_call",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "ui",
+            "to": "hotel-api",
+            "label": "Hotel Booking API Call",
+            "type": "api_call",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "ui",
+            "to": "car-api",
+            "label": "Car Rental Booking API Call",
+            "type": "api_call",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "ui",
+            "to": "payment-api",
+            "label": "Payment Processing API Call",
+            "type": "api_call",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "flight-api",
+            "to": "message-queue",
+            "label": "Flight Booking Event",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "hotel-api",
+            "to": "message-queue",
+            "label": "Hotel Booking Event",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "car-api",
+            "to": "message-queue",
+            "label": "Car Rental Booking Event",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "payment-api",
+            "to": "message-queue",
+            "label": "Payment Processing Event",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "saga-orchestrator",
+            "to": "message-queue",
+            "label": "Saga Event",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "message-queue",
+            "to": "saga-orchestrator",
+            "label": "Saga Event",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "saga-orchestrator",
+            "to": "postgres-db",
+            "label": "Transaction Persistence",
+            "type": "database_query",
+            "protocol": "SQL"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "nodes": ["ui"]
+        },
+        {
+            "id": "backend",
+            "label": "Backend",
+            "nodes": [
+                "flight-api",
+                "hotel-api",
+                "car-api",
+                "payment-api",
+                "saga-orchestrator"
+            ]
+        },
+        {
+            "id": "data",
+            "label": "Data",
+            "nodes": ["postgres-db"]
+        },
+        {
+            "id": "infrastructure",
+            "label": "Infrastructure",
+            "nodes": ["message-queue"]
+        }
+    ],
+    "styles": {
+        "ui": {
+            "color": "#4CAF50",
+            "shape": "rectangle",
+            "border": "solid"
+        },
+        "flight-api": {
+            "color": "#9C27B0",
+            "shape": "rectangle",
+            "border": "solid"
+        },
+        "hotel-api": {
+            "color": "#3F51B5",
+            "shape": "rectangle",
+            "border": "solid"
+        },
+        "car-api": {
+            "color": "#673AB7",
+            "shape": "rectangle",
+            "border": "solid"
+        },
+        "payment-api": {
+            "color": "#FFEB3B",
+            "shape": "rectangle",
+            "border": "solid"
+        },
+        "saga-orchestrator": {
+            "color": "#FF5722",
+            "shape": "rectangle",
+            "border": "solid"
+        },
+        "message-queue": {
+            "color": "#009688",
+            "shape": "ellipse",
+            "border": "dashed"
+        },
+        "postgres-db": {
+            "color": "#2196F3",
+            "shape": "database",
+            "border": "solid"
+        }
+    }
+}

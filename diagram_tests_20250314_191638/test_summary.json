@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Microservice_Architecture",
+    "prompt": "Create a software architecture diagram for a microservice-based e-commerce platform with user service, product catalog, order management, and payment processing.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This software architecture diagram illustrates a microservice-based e-commerce platform with a layered structure, incorporating a frontend layer (User Interface), backend layer (User Service, Product Catalog, Order Management, and Payment Processing), data layer (PostgreSQL Database), and infrastructure layer (Redis Cache, Kafka, and API Gateway) for handling caching, event-driven communication, and external API calls. Each microservice is distinctly color-coded and shaped in the diagram, which is organized into clusters for better visibility and understanding."
+  },
+  {
+    "name": "Event_Driven_Architecture",
+    "prompt": "Design an event-driven architecture for a real-time analytics system with producers, event bus, consumers, and data processing pipelines.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This JSON diagram describes an event-driven real-time analytics system architecture with producers generating events, an Apache Kafka event bus for reliable message delivery, consumers processing events and sending them to the Apache Beam data processing pipeline, which stores processed data in Google Bigtable and provides a React UI for visualization."
+  },
+  {
+    "name": "API_Gateway_Pattern",
+    "prompt": "Create a software architecture diagram showing API Gateway pattern with authentication, rate limiting, and service routing.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This software architecture diagram represents an API Gateway pattern with authentication, rate limiting, and service routing, encompassing frontend, backend, data, and infrastructure clusters, and utilizing technologies like Nginx, React, PostgreSQL, and Kafka."
+  },
+  {
+    "name": "CQRS_Architecture",
+    "prompt": "Design a software architecture following the CQRS (Command Query Responsibility Segregation) pattern with separate read and write models.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram represents a software architecture for a system following the CQRS pattern, with separate read and write models, including a frontend UI, client library, command and query services, write and read models, message queue, cache, and security components using various technologies such as React, Node.js, MongoDB, Elasticsearch, RabbitMQ, Redis, and OAuth2."
+  },
+  {
+    "name": "Serverless_Architecture",
+    "prompt": "Create a serverless architecture diagram for a photo processing application with cloud functions, object storage, and managed database.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram represents a serverless architecture for a photo processing application, including a user interface, authentication service, API gateway, object storage, managed database, and two AWS Lambda functions for image upload and processing, with various connections and data flow between them."
+  },
+  {
+    "name": "Message_Queue_Architecture",
+    "prompt": "Design a system architecture with message queues for an order processing system handling high volume of transactions.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This software architecture diagram depicts an order processing system with a layered design, incorporating microservices, an event-driven architecture, and message queues for high-volume transaction handling, featuring components such as a user interface, client libraries, API gateway, and backend services for managing orders, payments, and inventory, along with a message queue, database, and in-memory cache."
+  }
+]

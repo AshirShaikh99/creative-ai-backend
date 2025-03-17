@@ -1,0 +1,76 @@
+flowchart TD
+    title["Microservice Architecture"]
+    
+    %% Define clusters for different architectural layers
+    subgraph client_layer["Client Layer"]
+        web_client>"Web Client"]
+        mobile_client>"Mobile Client"]
+    end
+    
+    subgraph api_layer["API Gateway Layer"]
+        api_gateway[["API Gateway"]]
+        auth_service["Authentication Service"]
+    end
+    
+    subgraph service_layer["Microservices Layer"]
+        user_service(["User Service"])
+        product_service(["Product Service"])
+        order_service(["Order Service"])
+        payment_service(["Payment Service"])
+        notification_service(["Notification Service"])
+    end
+    
+    subgraph data_layer["Data Layer"]
+        user_db[("User Database")]
+        product_db[("Product Database")]
+        order_db[("Order Database")]
+        message_queue{{"Message Queue"}}
+        cache_service[("Cache")]
+    end
+    
+    subgraph external["External Services"]
+        payment_gateway[["Payment Gateway"]]
+        email_service[["Email Service"]]
+    end
+    
+    %% Define connections between components
+    web_client -->|"HTTP/REST"| api_gateway
+    mobile_client -->|"HTTP/REST"| api_gateway
+    
+    api_gateway -->|"Authenticate"| auth_service
+    api_gateway -->|"Route Request"| user_service
+    api_gateway -->|"Route Request"| product_service
+    api_gateway -->|"Route Request"| order_service
+    api_gateway -->|"Route Request"| payment_service
+    
+    user_service -->|"CRUD"| user_db
+    product_service -->|"CRUD"| product_db
+    order_service -->|"CRUD"| order_db
+    order_service -->|"Publish Event"| message_queue
+    
+    payment_service -->|"Process"| payment_gateway
+    payment_service -->|"Publish Event"| message_queue
+    
+    message_queue -->|"Consume Event"| notification_service
+    notification_service -->|"Send"| email_service
+    
+    user_service -->|"Cache Data"| cache_service
+    product_service -->|"Cache Data"| cache_service
+    
+    %% Apply styling
+    style web_client fill:#42A5F5
+    style mobile_client fill:#42A5F5
+    style api_gateway fill:#FF7043
+    style auth_service fill:#FF7043
+    style user_service fill:#66BB6A
+    style product_service fill:#66BB6A
+    style order_service fill:#66BB6A
+    style payment_service fill:#66BB6A
+    style notification_service fill:#66BB6A
+    style user_db fill:#AB47BC
+    style product_db fill:#AB47BC
+    style order_db fill:#AB47BC
+    style cache_service fill:#AB47BC
+    style message_queue fill:#FFA726
+    style payment_gateway fill:#78909C
+    style email_service fill:#78909C 

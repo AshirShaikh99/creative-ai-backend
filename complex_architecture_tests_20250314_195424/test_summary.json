@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Hexagonal_Architecture",
+    "prompt": "Create a software architecture diagram for a hexagonal (ports and adapters) architecture for an insurance claims processing system with domain core, application services, and various adapters for UI, database, and external services.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram illustrates an Insurance Claims Processing System Architecture, featuring a domain core handling business logic, application services orchestrating interactions, UI and database adapters, external service integration, event-driven communication, a single entry point, distributed traffic management, and data caching, all built with various technologies such as Java, React, PostgreSQL, and Kong."
+  },
+  {
+    "name": "Saga_Pattern",
+    "prompt": "Design a microservice architecture implementing the Saga pattern for a travel booking system handling flight, hotel, car rental, and payment transactions with compensation for failures.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This software architecture diagram depicts a travel booking system utilizing a microservice architecture, including a frontend, backend services for flight, hotel, car rental, and payment processing, a message queue for asynchronous communication, a PostgreSQL database for persistent data storage, and a Saga orchestrator implementing the Saga pattern for handling transactions and compensating for failures, with nodes, connections, clusters, and styles to distinguish various components and communication types."
+  },
+  {
+    "name": "CQRS_Event_Sourcing",
+    "prompt": "Create a detailed architecture diagram for an e-commerce system using CQRS and Event Sourcing patterns with event store, read models, projections, and eventual consistency.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram illustrates the architecture of an e-commerce system utilizing CQRS and Event Sourcing patterns, with components such as a frontend, API Gateway, Command Service, Event Store, Read Models, Projection Service, Cache, Message Queue, Auth Service, Payment Service, and external systems, all interconnected through various communication channels such as API calls, event publishing, event notifications, and data transformations."
+  },
+  {
+    "name": "Service_Mesh",
+    "prompt": "Design a service mesh architecture for a cloud-native application with sidecars, control plane, data plane, service discovery, and traffic management components like Istio or Linkerd.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram represents a service mesh architecture using Istio, which includes control plane components like Istio Pilot, Istio Citadel, and Istio Galley, data plane components like Istio Sidecar and Envoy for intercepting and managing traffic, and backend services like Service A, Service B, and Service C, with connections representing service discovery, identity and access control, configuration distribution, and service-to-service communication using various protocols."
+  },
+  {
+    "name": "BFF_Pattern",
+    "prompt": "Create a software architecture using the Backend-for-Frontend (BFF) pattern for a multi-channel e-commerce platform with web, mobile, and IoT clients, each with dedicated backend services.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "A diagram showing the requested components and their relationships."
+  },
+  {
+    "name": "Streaming_Data_Pipeline",
+    "prompt": "Design a real-time streaming data pipeline architecture for processing IoT sensor data, including ingestion, stream processing, analytics, storage, and visualization components.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This is a software architecture for a real-time streaming data pipeline that processes IoT sensor data, featuring components for ingestion, stream processing, analytics, storage, and visualization, utilizing technologies such as Kafka, Druid, InfluxDB, PostgreSQL, Grafana, and Kibana."
+  },
+  {
+    "name": "Domain_Driven_Design",
+    "prompt": "Create a detailed architecture diagram for a healthcare system based on Domain-Driven Design with bounded contexts, aggregates, entities, value objects, domain services, and anti-corruption layers.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This diagram represents a healthcare system architecture, featuring a frontend UI, authentication, API gateway, various backend services (patient, appointment, billing, prescriptions, doctor), databases for each service, a message queue for event flows, and a cache for data transformations, all interconnected through APIs, database queries, event flows, and data transformations."
+  },
+  {
+    "name": "Strangler_Pattern",
+    "prompt": "Design an architecture showing the Strangler Pattern for incrementally migrating a monolithic legacy system to microservices, including the facade, routing, and service migration components.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This architecture diagram illustrates a layered system utilizing the Strangler Pattern for migrating a monolithic legacy application to microservices, featuring an API facade, two microservices, two databases, and infrastructure components including a message queue and cache, with connections encompassing API calls, database queries, event flows, data transformations, and authentication flows, while clusters categorize components by layer and styles visually distinguish various component types."
+  },
+  {
+    "name": "Data_Mesh",
+    "prompt": "Create a data mesh architecture for a large enterprise with domain-oriented data ownership, data as a product, self-serve data infrastructure, and federated computational governance.",
+    "status": "success",
+    "diagram_type": "software_architecture",
+    "description": "This JSON diagram depicts a data mesh architecture for a large enterprise, consisting of two data domains, a centralized data platform, two data products, and a federated compute governance layer, with each data domain owning its data and providing data products for consumption, data products stored in the centralized data platform, and compute requests managed by the compute governance layer."
+  },
+  {
+    "name": "Microfrontend_Architecture",
+    "prompt": "Design a micro-frontend architecture for a complex web application with shell application, multiple independent frontend modules, shared libraries, and backend service integration.",
+    "status": "success",
+    "diagram_type": "erDiagram",
+    "description": "This Mermaid ER diagram illustrates a micro-frontend architecture, featuring a main application (SHELL\\_APP) that contains independent frontend modules (FRONTEND\\_MODULE1, FRONTEND\\_MODULE2) utilizing shared libraries (SHARED\\_LIibrary1, SHARED\\_LIBRARY2) and communicating with backend services (BACKEND\\_SERVICE1, BACKEND\\_SERVICE2), enabling independent development, deployment, and integration for complex web apps."
+  }
+]

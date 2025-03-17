@@ -1,0 +1,134 @@
+{
+    "type": "software_architecture",
+    "title": "CQRS System Architecture",
+    "nodes": [
+        {
+            "id": "ui",
+            "label": "Frontend (UI)",
+            "type": "frontend",
+            "description": "User interface components",
+            "technology": "React/Angular"
+        },
+        {
+            "id": "client",
+            "label": "Frontend (Client Library)",
+            "type": "frontend",
+            "description": "Client library for API interaction",
+            "technology": "JavaScript/TypeScript"
+        },
+        {
+            "id": "api-gateway",
+            "label": "API Gateway",
+            "type": "backend",
+            "description": "Entrypoint for API requests",
+            "technology": "Node.js/Go"
+        },
+        {
+            "id": "command-service",
+            "label": "Command Service",
+            "type": "backend",
+            "description": "Handles write operations",
+            "technology": "Node.js/Go"
+        },
+        {
+            "id": "query-service",
+            "label": "Query Service",
+            "type": "backend",
+            "description": "Handles read operations",
+            "technology": "Node.js/Go"
+        },
+        {
+            "id": "database-write",
+            "label": "Database (Write)",
+            "type": "database",
+            "description": "Database for write operations",
+            "technology": "PostgreSQL/MySQL"
+        },
+        {
+            "id": "database-read",
+            "label": "Database (Read)",
+            "type": "database",
+            "description": "Database for read operations",
+            "technology": "Cassandra/MongoDB"
+        },
+        {
+            "id": "message-queue",
+            "label": "Message Queue",
+            "type": "infrastructure",
+            "description": "Asynchronous event handling",
+            "technology": "RabbitMQ/Kafka"
+        },
+        {
+            "id": "cache",
+            "label": "Cache",
+            "type": "infrastructure",
+            "description": "Caching layer",
+            "technology": "Redis/Memcached"
+        },
+        {
+            "id": "security",
+            "label": "Security",
+            "type": "security",
+            "description": "Authentication and authorization",
+            "technology": "OAuth/JWT"
+        }
+    ],
+    "connections": [
+        {
+            "from": "ui",
+            "to": "api-gateway",
+            "label": "API Call",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "client",
+            "to": "api-gateway",
+            "label": "API Call",
+            "type": "api",
+            "protocol": "HTTP"
+        },
+        {
+            "from": "api-gateway",
+            "to": "command-service",
+            "label": "Command",
+            "type": "rpc",
+            "protocol": "gRPC"
+        },
+        {
+            "from": "api-gateway",
+            "to": "query-service",
+            "label": "Query",
+            "type": "rpc",
+            "protocol": "gRPC"
+        },
+        {
+            "from": "command-service",
+            "to": "database-write",
+            "label": "Database Query",
+            "type": "database",
+            "protocol": "SQL"
+        },
+        {
+            "from": "command-service",
+            "to": "message-queue",
+            "label": "Event",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "message-queue",
+            "to": "query-service",
+            "label": "Event",
+            "type": "event",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "query-service",
+            "to": "database-read",
+            "label": "Database Query",
+            "type": "database",
+            "protocol": "NoSQL"
+        },
+        {
+            "from": "

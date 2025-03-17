@@ -1,0 +1,118 @@
+flowchart TD
+    title["CQRS Architecture with Event Sourcing"]
+    
+    subgraph client["Client Applications"]
+        web_client>"Web Application"]
+        mobile_client>"Mobile App"]
+        admin_dashboard>"Admin Dashboard"]
+    end
+    
+    subgraph api_layer["API Gateway"]
+        api_gateway([Service: API Gateway])
+        auth{Authentication}
+    end
+    
+    subgraph command_side["Command Side"]
+        command_api([Service: Command API])
+        command_handlers[[Command Handlers]]
+        domain_model[[Domain Model]]
+        validators[[Validators]]
+    end
+    
+    subgraph query_side["Query Side"]
+        query_api([Service: Query API])
+        query_handlers[[Query Handlers]]
+        read_models[[Read Models]]
+        projections[[Projections]]
+    end
+    
+    subgraph event_sourcing["Event Store"]
+        event_store[(Event Store DB)]
+        event_publisher[[Event Publisher]]
+    end
+    
+    subgraph read_storage["Read Database"]
+        read_db[(Read Database)]
+    end
+    
+    subgraph write_storage["Write Database"]
+        write_db[(Write Database)]
+    end
+    
+    subgraph integration["Integration"]
+        event_bus[/Event Bus/]
+        integration_events[[Integration Events]]
+    end
+    
+    subgraph external["External Systems"]
+        notification_service([Service: Notifications])
+        analytics_service([Service: Analytics])
+    end
+    
+    % Client connections
+    web_client -->|Commands| api_gateway
+    web_client -->|Queries| api_gateway
+    mobile_client -->|Commands| api_gateway
+    mobile_client -->|Queries| api_gateway
+    admin_dashboard -->|Admin Commands| api_gateway
+    admin_dashboard -->|Admin Queries| api_gateway
+    
+    % API Gateway routing
+    api_gateway --> auth
+    api_gateway -->|Command Requests| command_api
+    api_gateway -->|Query Requests| query_api
+    
+    % Command flow
+    command_api -->|Process Commands| command_handlers
+    command_handlers -->|Apply Business Rules| domain_model
+    command_handlers -->|Validate| validators
+    domain_model -->|Save Domain Events| event_store
+    domain_model -->|State Changes| write_db
+    
+    % Event flow
+    event_store ==>|Publish Events| event_publisher
+    event_publisher ==>|Domain Events| event_bus
+    
+    % Query flow
+    query_api -->|Execute Queries| query_handlers
+    query_handlers -->|Read Data| read_models
+    read_models -->|Fetch Data| read_db
+    
+    % Projection & integration
+    event_bus ==>|Update Projections| projections
+    projections -->|Update Read Models| read_db
+    event_bus ==>|External Integration| integration_events
+    integration_events ==>|Notifications| notification_service
+    integration_events ==>|Analytics Data| analytics_service
+    
+    % Styling
+    style web_client fill:#D4F1F9,stroke:#1E90FF
+    style mobile_client fill:#D4F1F9,stroke:#1E90FF
+    style admin_dashboard fill:#D4F1F9,stroke:#1E90FF
+    
+    style api_gateway fill:#F5F5F5,stroke:#666666
+    style auth fill:#F8CECC,stroke:#B85450
+    
+    style command_api fill:#F5F5F5,stroke:#666666
+    style query_api fill:#F5F5F5,stroke:#666666
+    
+    style command_handlers fill:#D5E8D4,stroke:#82B366
+    style domain_model fill:#D5E8D4,stroke:#82B366
+    style validators fill:#D5E8D4,stroke:#82B366
+    
+    style query_handlers fill:#DAE8FC,stroke:#6C8EBF
+    style read_models fill:#DAE8FC,stroke:#6C8EBF
+    style projections fill:#DAE8FC,stroke:#6C8EBF
+    
+    style event_store fill:#E1D5E7,stroke:#9673A6
+    style write_db fill:#E1D5E7,stroke:#9673A6
+    style read_db fill:#E1D5E7,stroke:#9673A6
+    
+    style event_bus fill:#FFF2CC,stroke:#D6B656
+    style event_publisher fill:#FFF2CC,stroke:#D6B656
+    style integration_events fill:#FFF2CC,stroke:#D6B656
+    
+    style notification_service fill:#F5F5F5,stroke:#666666,stroke-dasharray: 5 5
+    style analytics_service fill:#F5F5F5,stroke:#666666,stroke-dasharray: 5 5
+    
+    style title fill:#FFFFFF,stroke:#FFFFFF,color:#000000,font-size:16px 

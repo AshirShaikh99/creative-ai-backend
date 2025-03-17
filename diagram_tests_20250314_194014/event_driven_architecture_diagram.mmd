@@ -1,0 +1,139 @@
+{
+    "type": "software_architecture",
+    "title": "Real-Time Analytics System Architecture",
+    "nodes": [
+        {
+            "id": "producer",
+            "label": "Producers",
+            "type": "producer",
+            "description": "Generate and publish events to the event bus.",
+            "technology": "Application Services"
+        },
+        {
+            "id": "event_bus",
+            "label": "Event Bus",
+            "type": "infrastructure",
+            "description": "Message queue for handling events.",
+            "technology": "Apache Kafka"
+        },
+        {
+            "id": "data_processing_pipeline",
+            "label": "Data Processing Pipelines",
+            "type": "consumer",
+            "description": "Consume and process events for real-time analytics.",
+            "technology": "Apache Beam"
+        },
+        {
+            "id": "database",
+            "label": "Database",
+            "type": "data_store",
+            "description": "Store aggregated data for analytics.",
+            "technology": "Google Bigtable"
+        },
+        {
+            "id": "ui",
+            "label": "UI",
+            "type": "frontend",
+            "description": "Visualize real-time analytics.",
+            "technology": "React"
+        },
+        {
+            "id": "api",
+            "label": "API",
+            "type": "backend",
+            "description": "Expose real-time analytics to external systems.",
+            "technology": "Express.js"
+        }
+    ],
+    "connections": [
+        {
+            "from": "producer",
+            "to": "event_bus",
+            "label": "Publish events",
+            "type": "event_flow",
+            "protocol": "AMQP"
+        },
+        {
+            "from": "event_bus",
+            "to": "data_processing_pipeline",
+            "label": "Consume events",
+            "type": "event_flow",
+            "protocol": "Kafka"
+        },
+        {
+            "from": "data_processing_pipeline",
+            "to": "database",
+            "label": "Store aggregated data",
+            "type": "data_transformation",
+            "protocol": "gRPC"
+        },
+        {
+            "from": "database",
+            "to": "ui",
+            "label": "Fetch analytics data",
+            "type": "database_query",
+            "protocol": "REST"
+        },
+        {
+            "from": "api",
+            "to": "database",
+            "label": "Fetch analytics data",
+            "type": "database_query",
+            "protocol": "gRPC"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "data",
+            "label": "Data Layer",
+            "nodes": ["database", "data_processing_pipeline"]
+        },
+        {
+            "id": "infrastructure",
+            "label": "Infrastructure",
+            "nodes": ["event_bus"]
+        },
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "nodes": ["ui"]
+        },
+        {
+            "id": "backend",
+            "label": "Backend",
+            "nodes": ["api", "data_processing_pipeline"]
+        }
+    ],
+    "styles": {
+        "producer": {
+            "color": "#4caf50",
+            "shape": "entity",
+            "border": "solid"
+        },
+        "event_bus": {
+            "color": "#2196f3",
+            "shape": "cloud",
+            "border": "dashed"
+        },
+        "data_processing_pipeline": {
+            "color": "#f44336",
+            "shape": "process",
+            "border": "solid"
+        },
+        "database": {
+            "color": "#9c27b0",
+            "shape": "database",
+            "border": "solid"
+        },
+        "ui": {
+            "color": "#009688",
+            "shape": "browser",
+            "border": "solid"
+        },
+        "api": {
+            "color": "#9e9e9e",
+            "shape": "component",
+            "border": "solid"
+        }
+    }
+}

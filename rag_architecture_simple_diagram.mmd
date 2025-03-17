@@ -1,0 +1,55 @@
+flowchart TD
+    title[RAG System Architecture]
+    subgraph data_cluster["Data Cluster"]
+        data_source_1
+        data_source_2
+        vector_db
+    end
+    subgraph generation_cluster["Generation Cluster"]
+        embedding_model
+        llm_service_1
+        llm_service_2
+    end
+    subgraph agent_cluster["Agent Cluster"]
+        agent_1
+        agent_2
+    end
+    subgraph interface_cluster["Interface Cluster"]
+        user_interface
+    end
+    subgraph orchestration_cluster["Orchestration Cluster"]
+        orchestration_service
+    end
+    data_source_1["Data Source 1"]
+    data_source_2["Data Source 2"]
+    vector_db["Vector Database"]
+    embedding_model["Embedding Model"]
+    llm_service_1["LLM Service 1"]
+    llm_service_2["LLM Service 2"]
+    agent_1["Agent 1"]
+    agent_2["Agent 2"]
+    user_interface>"User Interface"]
+    orchestration_service["Orchestration Service"]
+    data_source_1 -->|Data ingestion| vector_db
+    data_source_2 -->|Data ingestion| vector_db
+    vector_db -->|Vector data input| embedding_model
+    embedding_model -->|Vector input| llm_service_1
+    embedding_model -->|Vector input| llm_service_2
+    llm_service_1 -->|Generated text| agent_1
+    llm_service_2 -->|Generated text| agent_2
+    agent_1 -->|Agent response| user_interface
+    agent_2 -->|Agent response| user_interface
+    user_interface -->|User input| agent_1
+    user_interface -->|User input| agent_2
+    orchestration_service -->|Workflow coordination| agent_1
+    orchestration_service -->|Workflow coordination| agent_2
+    style data_source_1 fill:#1f77b4
+    style data_source_2 fill:#1f77b4
+    style vector_db fill:#2ca02c
+    style embedding_model fill:#d62728
+    style llm_service_1 fill:#ff7f0e
+    style llm_service_2 fill:#ff7f0e
+    style agent_1 fill:#9467bd
+    style agent_2 fill:#9467bd
+    style user_interface fill:#e377c2
+    style orchestration_service fill:#7f7f7f

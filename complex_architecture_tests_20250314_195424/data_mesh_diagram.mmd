@@ -1,0 +1,105 @@
+{
+    "type": "software_architecture",
+    "title": "Data Mesh Architecture",
+    "nodes": [
+        {
+            "id": "data-domain-1",
+            "label": "Data Domain 1",
+            "type": "domain",
+            "description": "Data and services related to Domain 1",
+            "technology": "Data Mesh"
+        },
+        {
+            "id": "data-domain-2",
+            "label": "Data Domain 2",
+            "type": "domain",
+            "description": "Data and services related to Domain 2",
+            "technology": "Data Mesh"
+        },
+        {
+            "id": "data-platform",
+            "label": "Data Platform",
+            "type": "platform",
+            "description": "Centralized data platform providing self-serve infrastructure",
+            "technology": "Data Mesh"
+        },
+        {
+            "id": "data-product-1",
+            "label": "Data Product 1",
+            "type": "data-product",
+            "description": "Data product for Domain 1",
+            "technology": "Data Mesh"
+        },
+        {
+            "id": "data-product-2",
+            "label": "Data Product 2",
+            "type": "data-product",
+            "description": "Data product for Domain 2",
+            "technology": "Data Mesh"
+        },
+        {
+            "id": "compute-governance",
+            "label": "Compute Governance",
+            "type": "governance",
+            "description": "Federated computational governance",
+            "technology": "Data Mesh"
+        }
+    ],
+    "connections": [
+        {
+            "from": "data-domain-1",
+            "to": "data-product-1",
+            "label": "Data ownership",
+            "type": "ownership",
+            "protocol": "Data Mesh"
+        },
+        {
+            "from": "data-domain-2",
+            "to": "data-product-2",
+            "label": "Data ownership",
+            "type": "ownership",
+            "protocol": "Data Mesh"
+        },
+        {
+            "from": "data-product-1",
+            "to": "data-platform",
+            "label": "Data storage",
+            "type": "storage",
+            "protocol": "Data Mesh"
+        },
+        {
+            "from": "data-product-2",
+            "to": "data-platform",
+            "label": "Data storage",
+            "type": "storage",
+            "protocol": "Data Mesh"
+        },
+        {
+            "from": "data-platform",
+            "to": "compute-governance",
+            "label": "Compute requests",
+            "type": "request",
+            "protocol": "Data Mesh"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "data-layer",
+            "label": "Data Layer",
+            "nodes": ["data-domain-1", "data-domain-2", "data-product-1", "data-product-2", "data-platform"]
+        },
+        {
+            "id": "governance-layer",
+            "label": "Governance Layer",
+            "nodes": ["compute-governance"]
+        }
+    ],
+    "styles": {
+        "data-domain-1": {"color": "#f4cccc", "shape": "diamond", "border": "dotted"},
+        "data-domain-2": {"color": "#f4cccc", "shape": "diamond", "border": "dotted"},
+        "data-platform": {"color": "#d3d3d3", "shape": "box", "border": "solid"},
+        "data-product-1": {"color": "#c0c0c0", "shape": "ellipse", "border": "dashed"},
+        "data-product-2": {"color": "#c0c0c0", "shape": "ellipse", "border": "dashed"},
+        "compute-governance": {"color": "#95a5a6", "shape": "parallelogram", "border": "double"}
+    }
+}

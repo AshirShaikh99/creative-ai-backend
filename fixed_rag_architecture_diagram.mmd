@@ -1,0 +1,50 @@
+flowchart TD
+    title["RAG System Architecture"]
+    
+    %% Fixed subgraph syntax with proper labels
+    subgraph data_cluster["Data Cluster"]
+        data_source_1["Data Source 1"]
+        data_source_2["Data Source 2"]
+    end
+    
+    subgraph agent_cluster["Agent Cluster"]
+        agent_1{"Agent 1"}
+        agent_2{"Agent 2"}
+    end
+    
+    subgraph llm_cluster["LLM Cluster"]
+        llm_service_1(["LLM Service 1"])
+        llm_service_2(["LLM Service 2"])
+    end
+    
+    %% Nodes outside clusters with correct Mermaid shapes
+    vector_db[("Vector Database")]
+    embedding_model[["Embedding Model"]]
+    user_interface>"User Interface"]
+    orchestration_service["Orchestration Service"]
+    
+    %% Connections between nodes
+    data_source_1 -->|Data input| embedding_model
+    data_source_2 -->|Data input| embedding_model
+    embedding_model -->|Vector embeddings| vector_db
+    vector_db -->|Retrieved vectors| agent_1
+    vector_db -->|Retrieved vectors| agent_2
+    agent_1 -->|Augmented input| llm_service_1
+    agent_2 -->|Augmented input| llm_service_2
+    llm_service_1 -->|Generated output| user_interface
+    llm_service_2 -->|Generated output| user_interface
+    user_interface -->|User commands| orchestration_service
+    orchestration_service -->|Workflow instructions| agent_1
+    orchestration_service -->|Workflow instructions| agent_2
+    
+    %% Styling
+    style data_source_1 fill:#17BECF
+    style data_source_2 fill:#17BECF
+    style vector_db fill:#FFC107
+    style embedding_model fill:#FFC107
+    style agent_1 fill:#4CAF50
+    style agent_2 fill:#4CAF50
+    style llm_service_1 fill:#E91E63
+    style llm_service_2 fill:#E91E63
+    style user_interface fill:#3F51B5
+    style orchestration_service fill:#3F51B5 

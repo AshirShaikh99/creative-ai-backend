@@ -1,0 +1,147 @@
+{
+    "type": "software_architecture",
+    "title": "Real-Time Analytics System Architecture",
+    "nodes": [
+        {
+            "id": "producer",
+            "label": "Producers",
+            "type": "producer",
+            "description": "Generate and publish events to the event bus.",
+            "technology": "Application code"
+        },
+        {
+            "id": "event-bus",
+            "label": "Event Bus",
+            "type": "infrastructure",
+            "description": "Handles event distribution and provides reliable message delivery.",
+            "technology": "Apache Kafka"
+        },
+        {
+            "id": "consumer-1",
+            "label": "Consumer 1",
+            "type": "consumer",
+            "description": "Processes events and sends them to the data processing pipeline.",
+            "technology": "Application code"
+        },
+        {
+            "id": "consumer-2",
+            "label": "Consumer 2",
+            "type": "consumer",
+            "description": "Processes events and sends them to the data processing pipeline.",
+            "technology": "Application code"
+        },
+        {
+            "id": "data-processing-pipeline",
+            "label": "Data Processing Pipeline",
+            "type": "data",
+            "description": "Performs data transformations, aggregations, and enrichment.",
+            "technology": "Apache Beam"
+        },
+        {
+            "id": "database",
+            "label": "Database",
+            "type": "data",
+            "description": "Stores and manages the processed data.",
+            "technology": "Google Bigtable"
+        },
+        {
+            "id": "ui",
+            "label": "UI",
+            "type": "frontend",
+            "description": "Provides a visual interface for users to interact with the system.",
+            "technology": "React"
+        }
+    ],
+    "connections": [
+        {
+            "from": "producer",
+            "to": "event-bus",
+            "label": "Publish event",
+            "type": "event",
+            "protocol": "Apache Kafka"
+        },
+        {
+            "from": "event-bus",
+            "to": "consumer-1",
+            "label": "Deliver event",
+            "type": "event",
+            "protocol": "Apache Kafka"
+        },
+        {
+            "from": "event-bus",
+            "to": "consumer-2",
+            "label": "Deliver event",
+            "type": "event",
+            "protocol": "Apache Kafka"
+        },
+        {
+            "from": "consumer-1",
+            "to": "data-processing-pipeline",
+            "label": "Send events for processing",
+            "type": "data",
+            "protocol": "Apache Beam"
+        },
+        {
+            "from": "consumer-2",
+            "to": "data-processing-pipeline",
+            "label": "Send events for processing",
+            "type": "data",
+            "protocol": "Apache Beam"
+        },
+        {
+            "from": "data-processing-pipeline",
+            "to": "database",
+            "label": "Store processed data",
+            "type": "data",
+            "protocol": "Google Bigtable"
+        },
+        {
+            "from": "database",
+            "to": "ui",
+            "label": "Fetch data for visualization",
+            "type": "api",
+            "protocol": "REST"
+        }
+    ],
+    "clusters": [
+        {
+            "id": "frontend",
+            "label": "Frontend",
+            "nodes": ["ui"]
+        },
+        {
+            "id": "producer",
+            "label": "Producers",
+            "nodes": ["producer"]
+        },
+        {
+            "id": "event-bus",
+            "label": "Event Bus",
+            "nodes": ["event-bus"]
+        },
+        {
+            "id": "consumer",
+            "label": "Consumers",
+            "nodes": ["consumer-1", "consumer-2"]
+        },
+        {
+            "id": "data-processing-pipeline",
+            "label": "Data Processing Pipeline",
+            "nodes": ["data-processing-pipeline"]
+        },
+        {
+            "id": "data",
+            "label": "Data",
+            "nodes": ["database"]
+        }
+    ],
+    "styles": {
+        "producer": {"color": "#6c63ff", "shape": "ellipse", "border": "dotted"},
+        "event-bus": {"color": "#6c63ff", "shape": "ellipse", "border": "dotted"},
+        "consumer-1": {"color": "#ff8c00", "shape": "ellipse", "border": "dotted"},
+        "consumer-2": {"color": "#ff8c00", "shape": "ellipse", "border": "dotted"},
+        "data-processing-pipeline": {"color": "#00b8d9", "shape": "ellipse", "border": "dotted"},
+        "database": {"color": "#008000", "shape": "ellipse", "border": "dotted"},
+        "ui": {"color": "#ff007a", "shape": "ellipse", "border": "dotted"}
+    }
+}

@@ -1,0 +1,859 @@
+{
+  "diagram_type": "software_architecture",
+  "syntax": "flowchart TD\n    title[\"Microservice-based E-commerce Platform Architecture\"]\n    subgraph frontend[\"Frontend\"]\n        api_gateway\n    end\n    subgraph backend[\"Backend\"]\n        user_service\n        product_catalog\n        order_management\n        payment_processing\n    end\n    subgraph data[\"Data\"]\n        postgres_db\n        redis_cache\n    end\n    subgraph infrastructure[\"Infrastructure\"]\n        api_gateway\n        kafka_mq\n    end\n    subgraph security[\"Security\"]\n        jwt_auth\n    end\n    user_service[\"User Service (Node.js, TypeScript)\"]\n    product_catalog[\"Product Catalog (Go, gRPC)\"]\n    order_management[\"Order Management (Java, Spring Boot)\"]\n    payment_processing[\"Payment Processing (Python, Django)\"]\n    postgres_db[(\"PostgreSQL (PostgreSQL)\")]\n    redis_cache[\"Redis (Redis)\"]\n    kafka_mq[\"Kafka (Apache Kafka)\"]\n    api_gateway[\"API Gateway (Nginx)\"]\n    jwt_auth[\"JWT Authentication (JWT)\"]\n    user_service --> api_gateway\n    product_catalog --> api_gateway\n    order_management --> api_gateway\n    payment_processing --> api_gateway\n    user_service --> postgres_db\n    product_catalog --> postgres_db\n    order_management --> postgres_db\n    payment_processing --> postgres_db\n    user_service --> redis_cache\n    product_catalog --> redis_cache\n    order_management --> redis_cache\n    payment_processing --> redis_cache\n    user_service --> jwt_auth\n    product_catalog --> jwt_auth\n    order_management --> jwt_auth\n    payment_processing --> jwt_auth\n    user_service --> kafka_mq\n    product_catalog --> kafka_mq\n    order_management --> kafka_mq\n    payment_processing --> kafka_mq\n    style user_service fill:#007ACC,stroke:solid\n    style product_catalog fill:#4CAF50,stroke:solid\n    style order_management fill:#FFC107,stroke:solid\n    style payment_processing fill:#F44336,stroke:solid\n    style postgres_db fill:#3E5252,stroke:dashed\n    style redis_cache fill:#9C27B0,stroke:dotted\n    style kafka_mq fill:#2196F3,stroke:solid\n    style api_gateway fill:#009688,stroke:solid\n    style jwt_auth fill:#E91E63,stroke:solid\n    style title fill:#FFFFFF,stroke:#FFFFFF,color:#000000,font-size:16px\n",
+  "description": "This diagram illustrates a microservice-based e-commerce platform architecture, featuring separate frontend, backend, data, infrastructure, and security components, with services implemented in various programming languages interacting with databases, caching, message queue, API gateway, and authentication components.",
+  "metadata": {
+    "raw_data": {
+      "type": "software_architecture",
+      "title": "Microservice-based E-commerce Platform Architecture",
+      "nodes": [
+        {
+          "id": "user_service",
+          "label": "User Service",
+          "type": "microservice",
+          "description": "Manages user authentication, registration, and profiles",
+          "technology": "Node.js, TypeScript"
+        },
+        {
+          "id": "product_catalog",
+          "label": "Product Catalog",
+          "type": "microservice",
+          "description": "Handles product data, categories, and searching",
+          "technology": "Go, gRPC"
+        },
+        {
+          "id": "order_management",
+          "label": "Order Management",
+          "type": "microservice",
+          "description": "Processes and tracks orders through the system",
+          "technology": "Java, Spring Boot"
+        },
+        {
+          "id": "payment_processing",
+          "label": "Payment Processing",
+          "type": "microservice",
+          "description": "Facilitates payments and handles payment gateway integrations",
+          "technology": "Python, Django"
+        },
+        {
+          "id": "postgres_db",
+          "label": "PostgreSQL",
+          "type": "database",
+          "description": "Relational database for storing structured data",
+          "technology": "PostgreSQL"
+        },
+        {
+          "id": "redis_cache",
+          "label": "Redis",
+          "type": "cache",
+          "description": "In-memory data store for caching frequently accessed data",
+          "technology": "Redis"
+        },
+        {
+          "id": "kafka_mq",
+          "label": "Kafka",
+          "type": "message_queue",
+          "description": "Distributed streaming platform for event-driven communication",
+          "technology": "Apache Kafka"
+        },
+        {
+          "id": "api_gateway",
+          "label": "API Gateway",
+          "type": "infrastructure",
+          "description": "Entrypoint for all external API requests",
+          "technology": "Nginx"
+        },
+        {
+          "id": "jwt_auth",
+          "label": "JWT Authentication",
+          "type": "security",
+          "description": "JSON Web Token authentication and authorization",
+          "technology": "JWT"
+        }
+      ],
+      "connections": [
+        {
+          "from": "user_service",
+          "to": "api_gateway",
+          "label": "API calls",
+          "type": "api",
+          "protocol": "HTTP"
+        },
+        {
+          "from": "product_catalog",
+          "to": "api_gateway",
+          "label": "API calls",
+          "type": "api",
+          "protocol": "gRPC"
+        },
+        {
+          "from": "order_management",
+          "to": "api_gateway",
+          "label": "API calls",
+          "type": "api",
+          "protocol": "HTTP"
+        },
+        {
+          "from": "payment_processing",
+          "to": "api_gateway",
+          "label": "API calls",
+          "type": "api",
+          "protocol": "HTTP"
+        },
+        {
+          "from": "user_service",
+          "to": "postgres_db",
+          "label": "DB queries",
+          "type": "db",
+          "protocol": "PostgreSQL"
+        },
+        {
+          "from": "product_catalog",
+          "to": "postgres_db",
+          "label": "DB queries",
+          "type": "db",
+          "protocol": "PostgreSQL"
+        },
+        {
+          "from": "order_management",
+          "to": "postgres_db",
+          "label": "DB queries",
+          "type": "db",
+          "protocol": "PostgreSQL"
+        },
+        {
+          "from": "payment_processing",
+          "to": "postgres_db",
+          "label": "DB queries",
+          "type": "db",
+          "protocol": "PostgreSQL"
+        },
+        {
+          "from": "user_service",
+          "to": "redis_cache",
+          "label": "Cache",
+          "type": "cache",
+          "protocol": "Redis"
+        },
+        {
+          "from": "product_catalog",
+          "to": "redis_cache",
+          "label": "Cache",
+          "type": "cache",
+          "protocol": "Redis"
+        },
+        {
+          "from": "order_management",
+          "to": "redis_cache",
+          "label": "Cache",
+          "type": "cache",
+          "protocol": "Redis"
+        },
+        {
+          "from": "payment_processing",
+          "to": "redis_cache",
+          "label": "Cache",
+          "type": "cache",
+          "protocol": "Redis"
+        },
+        {
+          "from": "user_service",
+          "to": "jwt_auth",
+          "label": "Authentication",
+          "type": "auth",
+          "protocol": "JWT"
+        },
+        {
+          "from": "product_catalog",
+          "to": "jwt_auth",
+          "label": "Authentication",
+          "type": "auth",
+          "protocol": "JWT"
+        },
+        {
+          "from": "order_management",
+          "to": "jwt_auth",
+          "label": "Authentication",
+          "type": "auth",
+          "protocol": "JWT"
+        },
+        {
+          "from": "payment_processing",
+          "to": "jwt_auth",
+          "label": "Authentication",
+          "type": "auth",
+          "protocol": "JWT"
+        },
+        {
+          "from": "user_service",
+          "to": "kafka_mq",
+          "label": "Events",
+          "type": "event",
+          "protocol": "Kafka"
+        },
+        {
+          "from": "product_catalog",
+          "to": "kafka_mq",
+          "label": "Events",
+          "type": "event",
+          "protocol": "Kafka"
+        },
+        {
+          "from": "order_management",
+          "to": "kafka_mq",
+          "label": "Events",
+          "type": "event",
+          "protocol": "Kafka"
+        },
+        {
+          "from": "payment_processing",
+          "to": "kafka_mq",
+          "label": "Events",
+          "type": "event",
+          "protocol": "Kafka"
+        }
+      ],
+      "clusters": [
+        {
+          "id": "frontend",
+          "label": "Frontend",
+          "nodes": [
+            "api_gateway"
+          ]
+        },
+        {
+          "id": "backend",
+          "label": "Backend",
+          "nodes": [
+            "user_service",
+            "product_catalog",
+            "order_management",
+            "payment_processing"
+          ]
+        },
+        {
+          "id": "data",
+          "label": "Data",
+          "nodes": [
+            "postgres_db",
+            "redis_cache"
+          ]
+        },
+        {
+          "id": "infrastructure",
+          "label": "Infrastructure",
+          "nodes": [
+            "api_gateway",
+            "kafka_mq"
+          ]
+        },
+        {
+          "id": "security",
+          "label": "Security",
+          "nodes": [
+            "jwt_auth"
+          ]
+        }
+      ],
+      "styles": {
+        "user_service": {
+          "color": "#007ACC",
+          "shape": "rect",
+          "border": "solid"
+        },
+        "product_catalog": {
+          "color": "#4CAF50",
+          "shape": "rect",
+          "border": "solid"
+        },
+        "order_management": {
+          "color": "#FFC107",
+          "shape": "rect",
+          "border": "solid"
+        },
+        "payment_processing": {
+          "color": "#F44336",
+          "shape": "rect",
+          "border": "solid"
+        },
+        "postgres_db": {
+          "color": "#3E5252",
+          "shape": "database",
+          "border": "dashed"
+        },
+        "redis_cache": {
+          "color": "#9C27B0",
+          "shape": "rect",
+          "border": "dotted"
+        },
+        "kafka_mq": {
+          "color": "#2196F3",
+          "shape": "ellipse",
+          "border": "solid"
+        },
+        "api_gateway": {
+          "color": "#009688",
+          "shape": "rect",
+          "border": "solid"
+        },
+        "jwt_auth": {
+          "color": "#E91E63",
+          "shape": "circle",
+          "border": "solid"
+        }
+      }
+    },
+    "options": {},
+    "model": "mixtral-8x7b-32768",
+    "tokens": 2839
+  },
+  "raw_structure": {
+    "type": "software_architecture",
+    "title": "Microservice-based E-commerce Platform Architecture",
+    "nodes": [
+      {
+        "id": "user_service",
+        "label": "User Service",
+        "type": "microservice",
+        "description": "Manages user authentication, registration, and profiles",
+        "technology": "Node.js, TypeScript"
+      },
+      {
+        "id": "product_catalog",
+        "label": "Product Catalog",
+        "type": "microservice",
+        "description": "Handles product data, categories, and searching",
+        "technology": "Go, gRPC"
+      },
+      {
+        "id": "order_management",
+        "label": "Order Management",
+        "type": "microservice",
+        "description": "Processes and tracks orders through the system",
+        "technology": "Java, Spring Boot"
+      },
+      {
+        "id": "payment_processing",
+        "label": "Payment Processing",
+        "type": "microservice",
+        "description": "Facilitates payments and handles payment gateway integrations",
+        "technology": "Python, Django"
+      },
+      {
+        "id": "postgres_db",
+        "label": "PostgreSQL",
+        "type": "database",
+        "description": "Relational database for storing structured data",
+        "technology": "PostgreSQL"
+      },
+      {
+        "id": "redis_cache",
+        "label": "Redis",
+        "type": "cache",
+        "description": "In-memory data store for caching frequently accessed data",
+        "technology": "Redis"
+      },
+      {
+        "id": "kafka_mq",
+        "label": "Kafka",
+        "type": "message_queue",
+        "description": "Distributed streaming platform for event-driven communication",
+        "technology": "Apache Kafka"
+      },
+      {
+        "id": "api_gateway",
+        "label": "API Gateway",
+        "type": "infrastructure",
+        "description": "Entrypoint for all external API requests",
+        "technology": "Nginx"
+      },
+      {
+        "id": "jwt_auth",
+        "label": "JWT Authentication",
+        "type": "security",
+        "description": "JSON Web Token authentication and authorization",
+        "technology": "JWT"
+      }
+    ],
+    "connections": [
+      {
+        "from": "user_service",
+        "to": "api_gateway",
+        "label": "API calls",
+        "type": "api",
+        "protocol": "HTTP"
+      },
+      {
+        "from": "product_catalog",
+        "to": "api_gateway",
+        "label": "API calls",
+        "type": "api",
+        "protocol": "gRPC"
+      },
+      {
+        "from": "order_management",
+        "to": "api_gateway",
+        "label": "API calls",
+        "type": "api",
+        "protocol": "HTTP"
+      },
+      {
+        "from": "payment_processing",
+        "to": "api_gateway",
+        "label": "API calls",
+        "type": "api",
+        "protocol": "HTTP"
+      },
+      {
+        "from": "user_service",
+        "to": "postgres_db",
+        "label": "DB queries",
+        "type": "db",
+        "protocol": "PostgreSQL"
+      },
+      {
+        "from": "product_catalog",
+        "to": "postgres_db",
+        "label": "DB queries",
+        "type": "db",
+        "protocol": "PostgreSQL"
+      },
+      {
+        "from": "order_management",
+        "to": "postgres_db",
+        "label": "DB queries",
+        "type": "db",
+        "protocol": "PostgreSQL"
+      },
+      {
+        "from": "payment_processing",
+        "to": "postgres_db",
+        "label": "DB queries",
+        "type": "db",
+        "protocol": "PostgreSQL"
+      },
+      {
+        "from": "user_service",
+        "to": "redis_cache",
+        "label": "Cache",
+        "type": "cache",
+        "protocol": "Redis"
+      },
+      {
+        "from": "product_catalog",
+        "to": "redis_cache",
+        "label": "Cache",
+        "type": "cache",
+        "protocol": "Redis"
+      },
+      {
+        "from": "order_management",
+        "to": "redis_cache",
+        "label": "Cache",
+        "type": "cache",
+        "protocol": "Redis"
+      },
+      {
+        "from": "payment_processing",
+        "to": "redis_cache",
+        "label": "Cache",
+        "type": "cache",
+        "protocol": "Redis"
+      },
+      {
+        "from": "user_service",
+        "to": "jwt_auth",
+        "label": "Authentication",
+        "type": "auth",
+        "protocol": "JWT"
+      },
+      {
+        "from": "product_catalog",
+        "to": "jwt_auth",
+        "label": "Authentication",
+        "type": "auth",
+        "protocol": "JWT"
+      },
+      {
+        "from": "order_management",
+        "to": "jwt_auth",
+        "label": "Authentication",
+        "type": "auth",
+        "protocol": "JWT"
+      },
+      {
+        "from": "payment_processing",
+        "to": "jwt_auth",
+        "label": "Authentication",
+        "type": "auth",
+        "protocol": "JWT"
+      },
+      {
+        "from": "user_service",
+        "to": "kafka_mq",
+        "label": "Events",
+        "type": "event",
+        "protocol": "Kafka"
+      },
+      {
+        "from": "product_catalog",
+        "to": "kafka_mq",
+        "label": "Events",
+        "type": "event",
+        "protocol": "Kafka"
+      },
+      {
+        "from": "order_management",
+        "to": "kafka_mq",
+        "label": "Events",
+        "type": "event",
+        "protocol": "Kafka"
+      },
+      {
+        "from": "payment_processing",
+        "to": "kafka_mq",
+        "label": "Events",
+        "type": "event",
+        "protocol": "Kafka"
+      }
+    ],
+    "clusters": [
+      {
+        "id": "frontend",
+        "label": "Frontend",
+        "nodes": [
+          "api_gateway"
+        ]
+      },
+      {
+        "id": "backend",
+        "label": "Backend",
+        "nodes": [
+          "user_service",
+          "product_catalog",
+          "order_management",
+          "payment_processing"
+        ]
+      },
+      {
+        "id": "data",
+        "label": "Data",
+        "nodes": [
+          "postgres_db",
+          "redis_cache"
+        ]
+      },
+      {
+        "id": "infrastructure",
+        "label": "Infrastructure",
+        "nodes": [
+          "api_gateway",
+          "kafka_mq"
+        ]
+      },
+      {
+        "id": "security",
+        "label": "Security",
+        "nodes": [
+          "jwt_auth"
+        ]
+      }
+    ],
+    "styles": {
+      "user_service": {
+        "color": "#007ACC",
+        "shape": "rect",
+        "border": "solid"
+      },
+      "product_catalog": {
+        "color": "#4CAF50",
+        "shape": "rect",
+        "border": "solid"
+      },
+      "order_management": {
+        "color": "#FFC107",
+        "shape": "rect",
+        "border": "solid"
+      },
+      "payment_processing": {
+        "color": "#F44336",
+        "shape": "rect",
+        "border": "solid"
+      },
+      "postgres_db": {
+        "color": "#3E5252",
+        "shape": "database",
+        "border": "dashed"
+      },
+      "redis_cache": {
+        "color": "#9C27B0",
+        "shape": "rect",
+        "border": "dotted"
+      },
+      "kafka_mq": {
+        "color": "#2196F3",
+        "shape": "ellipse",
+        "border": "solid"
+      },
+      "api_gateway": {
+        "color": "#009688",
+        "shape": "rect",
+        "border": "solid"
+      },
+      "jwt_auth": {
+        "color": "#E91E63",
+        "shape": "circle",
+        "border": "solid"
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "user_service",
+      "label": "User Service",
+      "type": "microservice",
+      "description": "Manages user authentication, registration, and profiles",
+      "technology": "Node.js, TypeScript"
+    },
+    {
+      "id": "product_catalog",
+      "label": "Product Catalog",
+      "type": "microservice",
+      "description": "Handles product data, categories, and searching",
+      "technology": "Go, gRPC"
+    },
+    {
+      "id": "order_management",
+      "label": "Order Management",
+      "type": "microservice",
+      "description": "Processes and tracks orders through the system",
+      "technology": "Java, Spring Boot"
+    },
+    {
+      "id": "payment_processing",
+      "label": "Payment Processing",
+      "type": "microservice",
+      "description": "Facilitates payments and handles payment gateway integrations",
+      "technology": "Python, Django"
+    },
+    {
+      "id": "postgres_db",
+      "label": "PostgreSQL",
+      "type": "database",
+      "description": "Relational database for storing structured data",
+      "technology": "PostgreSQL"
+    },
+    {
+      "id": "redis_cache",
+      "label": "Redis",
+      "type": "cache",
+      "description": "In-memory data store for caching frequently accessed data",
+      "technology": "Redis"
+    },
+    {
+      "id": "kafka_mq",
+      "label": "Kafka",
+      "type": "message_queue",
+      "description": "Distributed streaming platform for event-driven communication",
+      "technology": "Apache Kafka"
+    },
+    {
+      "id": "api_gateway",
+      "label": "API Gateway",
+      "type": "infrastructure",
+      "description": "Entrypoint for all external API requests",
+      "technology": "Nginx"
+    },
+    {
+      "id": "jwt_auth",
+      "label": "JWT Authentication",
+      "type": "security",
+      "description": "JSON Web Token authentication and authorization",
+      "technology": "JWT"
+    }
+  ],
+  "connections": [
+    {
+      "from": "user_service",
+      "to": "api_gateway",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "product_catalog",
+      "to": "api_gateway",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "gRPC"
+    },
+    {
+      "from": "order_management",
+      "to": "api_gateway",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "payment_processing",
+      "to": "api_gateway",
+      "label": "API calls",
+      "type": "api",
+      "protocol": "HTTP"
+    },
+    {
+      "from": "user_service",
+      "to": "postgres_db",
+      "label": "DB queries",
+      "type": "db",
+      "protocol": "PostgreSQL"
+    },
+    {
+      "from": "product_catalog",
+      "to": "postgres_db",
+      "label": "DB queries",
+      "type": "db",
+      "protocol": "PostgreSQL"
+    },
+    {
+      "from": "order_management",
+      "to": "postgres_db",
+      "label": "DB queries",
+      "type": "db",
+      "protocol": "PostgreSQL"
+    },
+    {
+      "from": "payment_processing",
+      "to": "postgres_db",
+      "label": "DB queries",
+      "type": "db",
+      "protocol": "PostgreSQL"
+    },
+    {
+      "from": "user_service",
+      "to": "redis_cache",
+      "label": "Cache",
+      "type": "cache",
+      "protocol": "Redis"
+    },
+    {
+      "from": "product_catalog",
+      "to": "redis_cache",
+      "label": "Cache",
+      "type": "cache",
+      "protocol": "Redis"
+    },
+    {
+      "from": "order_management",
+      "to": "redis_cache",
+      "label": "Cache",
+      "type": "cache",
+      "protocol": "Redis"
+    },
+    {
+      "from": "payment_processing",
+      "to": "redis_cache",
+      "label": "Cache",
+      "type": "cache",
+      "protocol": "Redis"
+    },
+    {
+      "from": "user_service",
+      "to": "jwt_auth",
+      "label": "Authentication",
+      "type": "auth",
+      "protocol": "JWT"
+    },
+    {
+      "from": "product_catalog",
+      "to": "jwt_auth",
+      "label": "Authentication",
+      "type": "auth",
+      "protocol": "JWT"
+    },
+    {
+      "from": "order_management",
+      "to": "jwt_auth",
+      "label": "Authentication",
+      "type": "auth",
+      "protocol": "JWT"
+    },
+    {
+      "from": "payment_processing",
+      "to": "jwt_auth",
+      "label": "Authentication",
+      "type": "auth",
+      "protocol": "JWT"
+    },
+    {
+      "from": "user_service",
+      "to": "kafka_mq",
+      "label": "Events",
+      "type": "event",
+      "protocol": "Kafka"
+    },
+    {
+      "from": "product_catalog",
+      "to": "kafka_mq",
+      "label": "Events",
+      "type": "event",
+      "protocol": "Kafka"
+    },
+    {
+      "from": "order_management",
+      "to": "kafka_mq",
+      "label": "Events",
+      "type": "event",
+      "protocol": "Kafka"
+    },
+    {
+      "from": "payment_processing",
+      "to": "kafka_mq",
+      "label": "Events",
+      "type": "event",
+      "protocol": "Kafka"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "nodes": [
+        "api_gateway"
+      ]
+    },
+    {
+      "id": "backend",
+      "label": "Backend",
+      "nodes": [
+        "user_service",
+        "product_catalog",
+        "order_management",
+        "payment_processing"
+      ]
+    },
+    {
+      "id": "data",
+      "label": "Data",
+      "nodes": [
+        "postgres_db",
+        "redis_cache"
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure",
+      "nodes": [
+        "api_gateway",
+        "kafka_mq"
+      ]
+    },
+    {
+      "id": "security",
+      "label": "Security",
+      "nodes": [
+        "jwt_auth"
+      ]
+    }
+  ]
+}
