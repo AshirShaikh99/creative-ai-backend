@@ -30,8 +30,11 @@ The system follows this processing pipeline:
 - LiveKit account or self-hosted LiveKit server
 - Groq API access
 - Qdrant instance (cloud or self-hosted)
+- Docker (optional, for containerized deployment)
 
 ### Installation
+
+#### Option 1: Direct Installation
 
 1. Clone the repository
 2. Install dependencies:
@@ -39,6 +42,30 @@ The system follows this processing pipeline:
    pip install -r requirements.txt
    ```
 3. Copy `env.sample` to `.env` and fill in your API keys and configuration settings
+
+#### Option 2: Docker Installation
+
+1. Clone the repository
+2. Copy `env.sample` to `.env` and fill in your API keys and configuration settings
+3. Build and run with Docker:
+   ```
+   docker-compose build
+   docker-compose up -d
+   ```
+
+#### Option 3: Cloud Deployment
+
+This repository is configured for easy deployment to cloud platforms that support Nixpacks:
+
+1. Make sure your repository contains the following files:
+
+   - `Procfile` - Specifies the command to start the application
+   - `runtime.txt` - Specifies the Python version
+   - `nixpacks.toml` - Provides build instructions
+
+2. Deploy to your cloud platform of choice that supports Nixpacks
+
+3. Set all required environment variables in your cloud platform's dashboard
 
 ### Configuration
 
@@ -65,7 +92,7 @@ USE_CUDA=0  # Set to 1 to use GPU acceleration
 - `POST /api/audio/token`: Generate a LiveKit token for accessing a room
   ```json
   {
-    "user_id": "user123", 
+    "user_id": "user123",
     "room_name": "my-voice-room"
   }
   ```
@@ -73,9 +100,10 @@ USE_CUDA=0  # Set to 1 to use GPU acceleration
 ### Voice Sessions
 
 - `POST /api/audio/initialize`: Initialize a new voice agent session
+
   ```json
   {
-    "user_id": "user123", 
+    "user_id": "user123",
     "room_name": "optional-room-name"
   }
   ```
