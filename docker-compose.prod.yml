@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  creative-ai-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: creative-ai-backend:latest
+    container_name: creative-ai-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.prod
+    volumes:
+      - ./docs:/app/docs:ro
+      - ./models:/app/models
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    networks:
+      - creative-ai-network
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: creative-ai-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - creative-ai-network
+
+  # Optional Nginx reverse proxy for SSL termination
+  nginx:
+    image: nginx:alpine
+    container_name: creative-ai-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/www:/var/www/html:ro
+    depends_on:
+      - creative-ai-backend
+    networks:
+      - creative-ai-network
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  creative-ai-network:
+    driver: bridge

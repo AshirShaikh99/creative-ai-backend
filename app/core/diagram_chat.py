@@ -224,7 +224,7 @@ class DiagramChatbot:
             
             # Use Claude 3 Opus for complex AI architecture diagrams when available
             # For testing, let's use mixtral for all diagram types
-            model = "mixtral-8x7b-32768"  # Temporarily using mixtral for all diagrams until we debug
+            model = "llama-3.3-70b-versatile"  # Update to the new supported model
             
             try:
                 logger.info(f"Calling Groq API with model: {model}")
@@ -277,7 +277,7 @@ class DiagramChatbot:
                         ]
                         
                         fallback_completion = await self.groq_client.chat.completions.create(
-                            model="mixtral-8x7b-32768",
+                            model="mixtral-8x7b-v0.1",  # Update here as well
                             messages=fallback_messages,
                             temperature=0.7
                         )
@@ -494,7 +494,7 @@ class DiagramChatbot:
     async def _generate_description(self, prompt: str) -> str:
         try:
             completion = await self.groq_client.chat.completions.create(
-                model="mixtral-8x7b-32768",
+                model="mixtral-8x7b-v0.1",  # Update here as well
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7
             )
@@ -524,7 +524,7 @@ class DiagramChatbot:
         
         try:
             completion = await self.groq_client.chat.completions.create(
-                model="mixtral-8x7b-32768",
+                model="mixtral-8x7b-v0.1",  # Update here as well
                 messages=[{"role": m.role, "content": m.content} for m in session.messages],
                 temperature=0.7
             )
