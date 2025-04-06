@@ -162,3 +162,5 @@ srt==3.5.3  # Subtitle handling
 deepgram-sdk==3.2.0
 # Adding ElevenLabs for TTS
 elevenlabs==1.52.0
+# Adding AI21 for chatbot
+ai21==2.0.0
