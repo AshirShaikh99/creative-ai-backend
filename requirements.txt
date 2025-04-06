@@ -163,4 +163,4 @@ deepgram-sdk==3.2.0
 # Adding ElevenLabs for TTS
 elevenlabs==1.52.0
 # Adding AI21 for chatbot
-ai21==2.0.0
+ai21>=1.0.0,<3.0.0
